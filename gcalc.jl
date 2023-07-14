@@ -44,17 +44,27 @@ function check_error(IZAP, NAME, T, P)
     return IZAP, 𝒢
 end
 
-function gcalc(T=1200.0, P=1000.0, 
+function gcalc(T=1000.0, P=1000.0, 
+    # T0=300.0,
+    # H0R=-860.11803, 
+    # NN0=1.0, 
+    # VAA=5.76, 
+    # K0=614.2537, 
+    # K01=197.8011, 
+    # V0R=22.421050, 
+    # γ0=-0.03958, 
+    # q0=1.0,
+    # θ0=884.20481)
     T0=300.0,
-    H0R=-860.11803, 
+    H0R=-794335.40, 
     NN0=3.0, 
-    VAA=5.76, 
-    K0=61.42537, 
-    K01=19.78011, 
-    V0R=22.421050, 
-    γ0=-0.03958, 
-    q0=1.0,
-    θ0=884.20481)
+    VAA=4.97107, 
+    K0=3275843.0, 
+    K01=4.015530, 
+    V0R=1.367, 
+    γ0=-1.374660, 
+    q0=2.835170,
+    θ0=1140.77199)
     """
     Volume function from Stixrude and Lithgow-Bertelloni 2011
 
@@ -69,6 +79,17 @@ function gcalc(T=1200.0, P=1000.0,
     'q0' : Mie-Gruneisen exponent (q0)                              -> D3
     'θ0' : Debye Temperature (θ0, K)                                -> D1
     """
+
+    # The value of F0 is:   -794335.40000000002     
+    # The value of n is:   -3.0000000000000000     
+    # The value of v0 is:   -1.3670000000000000     
+    # The value of k0 is:    3275843.0000000000     
+    # The value of k0p is:    4.0155300000000000     
+    # The value of theta0 is:    1140.7719999999999     
+    # The value of gamma0 is:    1.3746600000000000     
+    # The value of q is:    2.8351700000000002     
+    # The value of etaS0 is:    4.9710799999999997     
+    # The value of Smag is:    0.0000000000000000
 
     IZAP = 0
 
@@ -161,7 +182,7 @@ function gcalc(T=1200.0, P=1000.0,
                                                             -2.0 * DG0) - PLGG0 * D2THT0) + D2G0)
 
         FL  = - DFC - DFT + DFT0 - P   # P(V) bar
-        println(ITIC, ": ", FL)
+        # println(ITIC, ": ", FL)
 
         DFL = - D2FC - D2FT + D2FT0    # dP(V)/dV
         #'Newton-Raphson'-method
@@ -194,12 +215,16 @@ function gcalc(T=1200.0, P=1000.0,
     println("# VOLU errors: ", VOLU_ER)
     println("# ITIC errors: ", ITIC_ER)
     println("# FL errors: ", FL_ER)
+
+    println("ℱ: ", ℱ)
+    println("𝒢: ", 𝒢)
+
     return 𝒢
 end
 
 println("Starting...")
 𝒢 = gcalc()
-println("𝒢: ", 𝒢)
+
 println("Done!")
 
 # if (VO2) 
