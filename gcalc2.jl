@@ -1,23 +1,17 @@
-global thermo = [-836057.5894053812,#-794335.4000000000,    # Helmoltz energy (F0, J/mol)
-                 -3.000000000000000,    # negative of the number of atoms per formula unit (-n)
-                 -1.3859356869300956,#1.367000000000000,    # negative of the volume (-V0)
-                 3275843.0000000000,    # c1: isothermal bulk modulus (K0, bar)
-                 4.0155300000000000,    # c2: pressure derivative of the isothermal bulk modulus (K')
-                 1140.7720000000000,    # c3: Debye Temperature (Θ0, K)
-                 1.3746600000000000,    # c4: Gruneisen thermal parameter (γ0)
-                 2.8351700000000000,    # c5: Mie-Gruneisen exponent (q0)
-                 4.9710780000000000,    # c6: Shear strain derivative of the tensorial Gruneisen parameter (ηS0)
-                 0.0000000000000000,    # c7: Configurational (and magnetic) entropy (J/mol/K)
-                 224.48914020000000,    # dv/dt
-                 40302696.428999998,    # dv/dp
-                 7.7650000000000e-3,    # dv/dp/dt 
-                 938851.31331355765,    #
-                 8.2479599999999991,    # 
-                 -18.620182098000015,   #
-                 -6.3457399999999993,   #
-                 -9.3100910490000075,   #
-                 4.1239799999999995,    # -K
-                 67346.742060000004]
+seif = [-794335.4000000000,    # Helmoltz energy (F0, J/mol)
+        -3.000000000000000,    # negative of the number of atoms per formula unit (-n)
+        -1.367000000000000,    # negative of the volume (-V0)
+        3275843.0000000000,    # c1: isothermal bulk modulus (K0, bar)
+        4.0155300000000000,    # c2: pressure derivative of the isothermal bulk modulus (K')
+        1140.7720000000000,    # c3: Debye Temperature (Θ0, K)
+        1.3746600000000000,    # c4: Gruneisen thermal parameter (γ0)
+        2.8351700000000000,    # c5: Mie-Gruneisen exponent (q0)
+        4.9710780000000000,    # c6: Shear strain derivative of the tensorial Gruneisen parameter (ηS0)
+        0.0000000000000000]    # c7: Configurational (and magnetic) entropy (J/mol/K)
+
+coe = [-855068.5, -3, -2.065700, 1135856.0, 4.00000, 852.4267, 0.3915700, 1.00000, 2.39793, 0.0]
+q   = [-858853.4, -3, -2.367003, 495474.30, 4.33155, 816.3307, -0.296e-2, 1.00000, 2.36469, 0.0]
+st  = [-818984.6, -3, -1.401700, 3143352.0, 3.75122, 1107.824, 1.3746600, 2.83517, 4.60904, 0.0]
 # cp(pr,t) = c1 + c2*t + c3/(t*t) + c4*t*t + c5/t**(1/2) + c6/t + c7 /t**3
 global R = 8.31446261815324
 println("Starting...")
@@ -38,11 +32,8 @@ function plg(t)
     while i < 100000
 
         p4 = Float64(i)
-
         p1 = p1 * p0
-
         dinc = (p2 + (p3 + 2.0/p4)/p4)*p1/p4/p4
-
         plg = plg + dinc
 
         if (abs(dinc/(1.0+abs(plg))) < nopt50) 
@@ -54,7 +45,7 @@ function plg(t)
     return plg
 end
 
-function gcalc(t=1000.0, p=1000.0)
+function gcalc(t=1000.0, p=1000.0, thermo=seif)
 
     tr = 300.0                                          # K
 
@@ -168,7 +159,7 @@ function gcalc(t=1000.0, p=1000.0)
 
         if (v - dv < 0.0) dv = v/2.0 end
 
-        println("v: ", v)
+        # println("v: ", v)
         v -= dv
 
         if (itic > iopt21 || abs(f1) > 1e40) 
@@ -232,29 +223,8 @@ function gcalc(t=1000.0, p=1000.0)
     # smu = (1.0 + 2.0*f)^(2.5)*(emod[1] + f*(thermo[21] + thermo[22]*f)) - etas*ethv
 end
 
-gcalc(1000.0, 1000.0)
-# println("================================================================================")
-# global thermo = [-836057.3275497563,   # g(pr,tr)
-#                  -3.0000000000000000,   # s(pr,tr)
-#                  -1.38593556191459,   # v(pr,tr)
-#                  3275843.0000000000,    # a 
-#                  4.0155300000000000,    # b 
-#                  1140.7719999999999,    # c 
-#                  1.3746600000000000,    # d 
-#                  2.8351700000000002,    # e 
-#                  4.9710799999999997,    # f 
-#                  0.0000000000000000,    # g
-#                  224.48914020000001,    # dv/dt
-#                  40302696.428999998,    # dv/dp
-#                  7.7650000000000219e-3, # dv/dp/dt 
-#                  938851.31331355765,    #
-#                  8.2479599999999991,    #
-#                  -18.620182098000015,   #
-#                  -6.3457399999999993,   #
-#                  -9.3100910490000075,   #
-#                  4.1239799999999995,    # -K
-#                  67346.742060000004]
-
-# gcalc(1000.0,1000.0)
-
+gcalc(1000.0, 1000.0, seif)
+gcalc(1000.0, 1000.0, coe)
+gcalc(1000.0, 1000.0, q)
+gcalc(1000.0, 1000.0, st)
 println("Finished!")
