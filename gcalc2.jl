@@ -1,3 +1,5 @@
+global R = 8.31446261815324
+
 struct Phase
     id::String      # Name id
     F0::Float64     # Helmoltz energy (F0, J/mol)
@@ -11,19 +13,26 @@ struct Phase
     ηS0::Float64    # c6: Shear strain derivative of the tensorial Gruneisen parameter (ηS0)
     cme::Float64    # c7: Configurational (and magnetic) entropy (J/mol/K)
 end
+# cp(pr,t) = c1 + c2*t + c3/(t*t) + c4*t*t + c5/t**(1/2) + c6/t + c7 /t**3
 
 seif    = Phase("seif", -794335.4, -3, -1.367000, 3275843.0, 4.01553, 1140.772, 1.3746600, 2.83517, 4.971078, 0.0)
 coe     = Phase( "coe", -855068.5, -3, -2.065700, 1135856.0, 4.00000, 852.4267, 0.3915700, 1.00000, 2.397930, 0.0)
 q       = Phase(   "q", -858853.4, -3, -2.367003, 495474.30, 4.33155, 816.3307, -0.296e-2, 1.00000, 2.364690, 0.0)
 st      = Phase(  "st", -818984.6, -3, -1.401700, 3143352.0, 3.75122, 1107.824, 1.3746600, 2.83517, 4.609040, 0.0)
-# cp(pr,t) = c1 + c2*t + c3/(t*t) + c4*t*t + c5/t**(1/2) + c6/t + c7 /t**3
 
-global R = 8.31446261815324
+"""
+    plg(t)
 
+This function evaluates the Debye integral:
+    int((ln(1-exp(-t))*t^2),t=0..t)
+
+# Arguments
+- `t::Float64`: Temperature.
+
+# Returns
+- `plg::Float64`: Value of the integral
+"""
 function plg(t)
-    # -----------------------------------------------------------------------
-    # evaluates debye integral: int((ln(1-exp(-t))*t^2),t=0..t)
-    # -----------------------------------------------------------------------
     p0 = exp(-t)
     p1 = 1.0
     p2 = t * t
@@ -49,9 +58,21 @@ function plg(t)
     return plg
 end
 
+"""
+    gcalc(t, p, phase)
+
+This function calculates the Gibbs energy of the `phase`
+
+# Arguments
+- `t::Float64`: Temperature value in K.
+- `p::Float64`: Pressure value in bar.
+- `phase::Phase`: Phase object containing the phase data.
+
+# Returns
+- `G::Float64`: Gibbs energy value.
+"""
 function gcalc(t=1000.0, p=1000.0, phase=q)
-    println(repeat("=", 80))
-    println("Calculating Gibbs energy for <", phase.id, ">")
+    println("Calculating Gibbs energy for `", phase.id, "`")
     tr = 300.0
 
     v0 = -phase.V0
@@ -217,12 +238,13 @@ function gcalc(t=1000.0, p=1000.0, phase=q)
     # final estimate for tht
     tht = t1 * root
     tht0 = tht * t2
-    # helmholtz enery
+    # helmholtz energy
     a = phase.F0 + c1 * f^2 * (0.5 + c2 * f) + nr9 * (t / tht^3 * plg(tht) - tr / tht0^3 * plg(tht0))
     # println("F: ", a)
-    gstxgi = a + p * v - t * phase.cme
-    println("G: ", gstxgi)
-    return gstxgi
+    G = a + p * v - t * phase.cme
+    println("G: ", G)
+    println(repeat("=", 40))
+    return G
 end
 
 function Σαμ()
