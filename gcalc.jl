@@ -65,7 +65,7 @@ function plg(t)
 end
 
 """
-    gcalc(t, p, phase)
+    gibbs(t, p, phase)
 
 This function calculates the Gibbs energy of the `phase`
 
@@ -77,8 +77,8 @@ This function calculates the Gibbs energy of the `phase`
 # Returns
 - `G::Float64`: Gibbs energy value.
 """
-function gcalc(phase, t=1000.0, p=1000.0)
-    println("Calculating Gibbs energy for `", phase.id, "` (", phase.comp2, ")")
+function gibbs(phase, t=1000.0, p=1000.0)
+    println("Calculating Gibbs energy for `", phase.id, "` (", phase.comp1, ")")
     tr = 300.0
 
     v0 = -phase.V0
@@ -253,7 +253,37 @@ function gcalc(phase, t=1000.0, p=1000.0)
     return G
 end
 
-function gibbs(id, temperature=1000.0, pressure=1000.0)
+function sites()
+
+    fac1 = 0
+
+    si = 1 # number of sites
+    sp = 2 # number of species
+    co = 2 # number of components
+    
+    ni = 1.0 # amount
+
+    Njk = 0.0 # number of atoms of component j on site k
+    Nk = 0.0 # total number of atoms on site k
+    Sik = 0.0 # sum over the stoichiometric coefficients of species i at site k
+
+    sijk = 1 # stoichiometric coefficient of component j on site k in species i
+
+    for i in 1:sp
+        Njk += sijk * ni
+    end
+
+    for k in 1:si
+        for j in 1:co
+            Sik += sijk
+            Nk += Njk
+        end
+        fac1 += Sik * log(Nk) - sijk * log(Njk)
+    end
+    return fac1
+end
+
+function gcalc(id, temperature=1000.0, pressure=1000.0)
     # load data
     data = CSV.File("stx11.csv", header=1) |> DataFrame
     row = findfirst(data.id .== id)
@@ -272,5 +302,9 @@ function gibbs(id, temperature=1000.0, pressure=1000.0)
         data[row, :c6],
         data[row, :c7])
 
-    G = gcalc(phase, temperature, pressure);
-end;
+    # G = gibbs(phase, temperature, pressure);
+    fac1 = R * temperature * sites();
+end
+
+gcalc("fo", 1000,1000);
+# gcalc("fa", 1000,1000);
