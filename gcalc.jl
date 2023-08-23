@@ -70,14 +70,14 @@ end
 This function calculates the Gibbs energy of the `phase`
 
 # Arguments
+- `phase::Phase`: Phase object containing the phase data.
 - `t::Float64`: Temperature value in K.
 - `p::Float64`: Pressure value in bar.
-- `phase::Phase`: Phase object containing the phase data.
 
 # Returns
 - `G::Float64`: Gibbs energy value.
 """
-function gcalc(t=1000.0, p=1000.0, phase=q)
+function gcalc(phase, t=1000.0, p=1000.0)
     println("Calculating Gibbs energy for `", phase.id, "` (", phase.comp2, ")")
     tr = 300.0
 
@@ -248,12 +248,12 @@ function gcalc(t=1000.0, p=1000.0, phase=q)
     a = phase.F0 + c1 * f^2 * (0.5 + c2 * f) + nr9 * (t / tht^3 * plg(tht) - tr / tht0^3 * plg(tht0))
     # println("F: ", a)
     G = a + p * v - t * phase.cme
-    @printf("G: %10.2f\n", float(G));
+    @printf("G(%.2f, %.2f): %10.2f\n", float(t), float(p), float(G));
     println(repeat("=", 40))
     return G
 end
 
-function gibbs(id)
+function gibbs(id, temperature=1000.0, pressure=1000.0)
     # load data
     data = CSV.File("stx11.csv", header=1) |> DataFrame
     row = findfirst(data.id .== id)
@@ -272,5 +272,5 @@ function gibbs(id)
         data[row, :c6],
         data[row, :c7])
 
-    G = gcalc(1000.0, 1000.0, phase);
-end
+    G = gcalc(phase, temperature, pressure);
+end;
