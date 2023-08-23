@@ -1,7 +1,13 @@
+using CSV
+using DataFrames
+using Printf
+
 global R = 8.31446261815324
 
 struct Phase
     id::String      # Name id
+    comp1::String   # Composition
+    comp2::String   # Composition
     F0::Float64     # Helmoltz energy (F0, J/mol)
     n::Float64      # negative of the number of atoms per formula unit (-n)
     V0::Float64     # negative of the volume (-V0)
@@ -15,10 +21,10 @@ struct Phase
 end
 # cp(pr,t) = c1 + c2*t + c3/(t*t) + c4*t*t + c5/t**(1/2) + c6/t + c7 /t**3
 
-seif    = Phase("seif", -794335.4, -3, -1.367000, 3275843.0, 4.01553, 1140.772, 1.3746600, 2.83517, 4.971078, 0.0)
-coe     = Phase( "coe", -855068.5, -3, -2.065700, 1135856.0, 4.00000, 852.4267, 0.3915700, 1.00000, 2.397930, 0.0)
-q       = Phase(   "q", -858853.4, -3, -2.367003, 495474.30, 4.33155, 816.3307, -0.296e-2, 1.00000, 2.364690, 0.0)
-st      = Phase(  "st", -818984.6, -3, -1.401700, 3143352.0, 3.75122, 1107.824, 1.3746600, 2.83517, 4.609040, 0.0)
+# seif    = Phase("seif", -794335.4, -3, -1.367000, 3275843.0, 4.01553, 1140.772, 1.3746600, 2.83517, 4.971078, 0.0)
+# coe     = Phase( "coe", -855068.5, -3, -2.065700, 1135856.0, 4.00000, 852.4267, 0.3915700, 1.00000, 2.397930, 0.0)
+# q       = Phase(   "q", -858853.4, -3, -2.367003, 495474.30, 4.33155, 816.3307, -0.296e-2, 1.00000, 2.364690, 0.0)
+# st      = Phase(  "st", -818984.6, -3, -1.401700, 3143352.0, 3.75122, 1107.824, 1.3746600, 2.83517, 4.609040, 0.0)
 
 """
     plg(t)
@@ -72,7 +78,7 @@ This function calculates the Gibbs energy of the `phase`
 - `G::Float64`: Gibbs energy value.
 """
 function gcalc(t=1000.0, p=1000.0, phase=q)
-    println("Calculating Gibbs energy for `", phase.id, "`")
+    println("Calculating Gibbs energy for `", phase.id, "` (", phase.comp2, ")")
     tr = 300.0
 
     v0 = -phase.V0
@@ -242,16 +248,29 @@ function gcalc(t=1000.0, p=1000.0, phase=q)
     a = phase.F0 + c1 * f^2 * (0.5 + c2 * f) + nr9 * (t / tht^3 * plg(tht) - tr / tht0^3 * plg(tht0))
     # println("F: ", a)
     G = a + p * v - t * phase.cme
-    println("G: ", G)
+    @printf("G: %10.2f\n", float(G));
     println(repeat("=", 40))
     return G
 end
 
-function Σαμ()
+function gibbs(id)
+    # load data
+    data = CSV.File("stx11.csv", header=1) |> DataFrame
+    row = findfirst(data.id .== id)
+    phase = Phase(
+        data[row, :id],
+        data[row, :comp1],
+        data[row, :comp2],
+        data[row, :G0],
+        data[row, :S0],
+        data[row, :V0],
+        data[row, :c1],
+        data[row, :c2],
+        data[row, :c3],
+        data[row, :c4],
+        data[row, :c5],
+        data[row, :c6],
+        data[row, :c7])
 
+    G = gcalc(1000.0, 1000.0, phase);
 end
-
-G = gcalc(1000.0, 1000.0, seif);
-G = gcalc(1000.0, 1000.0, coe);
-G = gcalc(1000.0, 1000.0, q);
-G = gcalc(1000.0, 1000.0, st);
