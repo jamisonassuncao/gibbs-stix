@@ -5,19 +5,19 @@ using Printf
 global R = 8.31446261815324
 
 struct Phase
-    id::String      # Name id
-    comp1::String   # Composition
-    comp2::String   # Composition
-    F0::Float64     # Helmoltz energy (F0, J/mol)
-    n::Float64      # negative of the number of atoms per formula unit (-n)
-    V0::Float64     # negative of the volume (-V0)
-    K0::Float64     # c1: isothermal bulk modulus (K0, bar)
-    Kp::Float64     # c2: pressure derivative of the isothermal bulk modulus (K')
-    Θ0::Float64     # c3: Debye Temperature (Θ0, K)
-    γ0::Float64     # c4: Gruneisen thermal parameter (γ0)
-    q0::Float64     # c5: Mie-Gruneisen exponent (q0)
-    ηS0::Float64    # c6: Shear strain derivative of the tensorial Gruneisen parameter (ηS0)
-    cme::Float64    # c7: Configurational (and magnetic) entropy (J/mol/K)
+    id::String          # Name id
+    formula::String     # Chemical formula
+    components::String  # Chemical components (SiO2, MgO, FeO, CaO, Al2O3, Na2O)
+    F0::Float64         # Helmoltz energy (F0, J/mol)
+    n::Float64          # negative of the number of atoms per formula unit (-n)
+    V0::Float64         # negative of the volume (-V0)
+    K0::Float64         # c1: isothermal bulk modulus (K0, bar)
+    Kp::Float64         # c2: pressure derivative of the isothermal bulk modulus (K')
+    Θ0::Float64         # c3: Debye Temperature (Θ0, K)
+    γ0::Float64         # c4: Gruneisen thermal parameter (γ0)
+    q0::Float64         # c5: Mie-Gruneisen exponent (q0)
+    ηS0::Float64        # c6: Shear strain derivative of the tensorial Gruneisen parameter (ηS0)
+    cme::Float64        # c7: Configurational (and magnetic) entropy (J/mol/K)
 end
 # cp(pr,t) = c1 + c2*t + c3/(t*t) + c4*t*t + c5/t**(1/2) + c6/t + c7 /t**3
 
@@ -253,9 +253,8 @@ function gibbs(phase, t=1000.0, p=1000.0)
     return G
 end
 
-function sites()
-
-    fac1 = 0
+function activity()
+    actvty = 0
 
     si = 1 # number of sites
     sp = 2 # number of species
@@ -278,9 +277,14 @@ function sites()
             Sik += sijk
             Nk += Njk
         end
-        fac1 += Sik * log(Nk) - sijk * log(Njk)
+        actvty += Sik * log(Nk) - sijk * log(Njk)
     end
-    return fac1
+    return actvty
+end
+
+function excess()
+    excess = 0.0
+    return excess 
 end
 
 function gcalc(id, temperature=1000.0, pressure=1000.0)
@@ -289,8 +293,8 @@ function gcalc(id, temperature=1000.0, pressure=1000.0)
     row = findfirst(data.id .== id)
     phase = Phase(
         data[row, :id],
-        data[row, :comp1],
-        data[row, :comp2],
+        data[row, :formula],
+        data[row, :components],
         data[row, :G0],
         data[row, :S0],
         data[row, :V0],
@@ -302,9 +306,12 @@ function gcalc(id, temperature=1000.0, pressure=1000.0)
         data[row, :c6],
         data[row, :c7])
 
-    # G = gibbs(phase, temperature, pressure);
-    fac1 = R * temperature * sites();
+    G = 0#gibbs(phase, temperature, pressure);
+    stch = R * temperature * activity();
+    excs = excess()
+    return G + stch - excs
 end
 
-gcalc("fo", 1000,1000);
+sp = 2
+gcalc("fo", 1000, 1000);
 # gcalc("fa", 1000,1000);
