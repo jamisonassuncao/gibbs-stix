@@ -4,10 +4,13 @@ using Printf
 
 global R = 8.31446261815324
 
+components = ["SIO2", "MGO", "FEO", "CAO", "AL2O3", "NA20"]
+n_components = zeros(size(components))
+
 struct Phase
     id::String          # Name id
     formula::String     # Chemical formula
-    components::String  # Chemical components (SiO2, MgO, FeO, CaO, Al2O3, Na2O)
+    components::Vector{Float64}  # Chemical components (SiO2, MgO, FeO, CaO, Al2O3, Na2O)
     F0::Float64         # Helmoltz energy (F0, J/mol)
     n::Float64          # negative of the number of atoms per formula unit (-n)
     V0::Float64         # negative of the volume (-V0)
@@ -20,11 +23,6 @@ struct Phase
     cme::Float64        # c7: Configurational (and magnetic) entropy (J/mol/K)
 end
 # cp(pr,t) = c1 + c2*t + c3/(t*t) + c4*t*t + c5/t**(1/2) + c6/t + c7 /t**3
-
-# seif    = Phase("seif", -794335.4, -3, -1.367000, 3275843.0, 4.01553, 1140.772, 1.3746600, 2.83517, 4.971078, 0.0)
-# coe     = Phase( "coe", -855068.5, -3, -2.065700, 1135856.0, 4.00000, 852.4267, 0.3915700, 1.00000, 2.397930, 0.0)
-# q       = Phase(   "q", -858853.4, -3, -2.367003, 495474.30, 4.33155, 816.3307, -0.296e-2, 1.00000, 2.364690, 0.0)
-# st      = Phase(  "st", -818984.6, -3, -1.401700, 3143352.0, 3.75122, 1107.824, 1.3746600, 2.83517, 4.609040, 0.0)
 
 """
     plg(t)
@@ -253,12 +251,12 @@ function gibbs(phase, t=1000.0, p=1000.0)
     return G
 end
 
-function activity()
+function activity(phase)
     actvty = 0
 
     si = 1 # number of sites
     sp = 2 # number of species
-    co = 2 # number of components
+    co = sum([value > 0 ? 1 : 0 for value in phase.components]) # number of components
     
     ni = 1.0 # amount
 
@@ -266,7 +264,7 @@ function activity()
     Nk = 0.0 # total number of atoms on site k
     Sik = 0.0 # sum over the stoichiometric coefficients of species i at site k
 
-    sijk = 1 # stoichiometric coefficient of component j on site k in species i
+    sijk = sum(phase.components) # stoichiometric coefficient of component j on site k in species i
 
     for i in 1:sp
         Njk += sijk * ni
@@ -291,10 +289,19 @@ function gcalc(id, temperature=1000.0, pressure=1000.0)
     # load data
     data = CSV.File("stx11.csv", header=1) |> DataFrame
     row = findfirst(data.id .== id)
+
+    # count components
+    comps = split(data[row, :components], r"[()]")
+    pop!(comps) # pop what is after the `)`
+    for c in 1:2:size(comps)[1]
+        p = findfirst(x -> x == comps[c], components)
+        n_components[p] = parse(Float64, comps[c+1])
+    end
+
     phase = Phase(
         data[row, :id],
         data[row, :formula],
-        data[row, :components],
+        n_components,
         data[row, :G0],
         data[row, :S0],
         data[row, :V0],
@@ -307,11 +314,24 @@ function gcalc(id, temperature=1000.0, pressure=1000.0)
         data[row, :c7])
 
     G = 0#gibbs(phase, temperature, pressure);
-    stch = R * temperature * activity();
+    actv = R * temperature * activity(phase);
     excs = excess()
-    return G + stch - excs
+
+    # clean components
+    n_components .*= 0.0
+    
+    return G + actv - excs;
 end
 
 sp = 2
-gcalc("fo", 1000, 1000);
+ph = gcalc("fo", 1000, 1000);
 # gcalc("fa", 1000,1000);
+
+# notation
+
+# eg. Olivine
+
+# fo -> Mg_2Si_1O_4
+# fa -> Fe_2Si_1O_4
+
+# 2 species -> fo, fa
