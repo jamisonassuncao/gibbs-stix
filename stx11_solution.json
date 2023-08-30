@@ -1,0 +1,26 @@
+[
+    {
+        "name": "olivine",
+        "species": [
+            "fo",
+            "fa"
+        ],
+        "sites": 1
+    },
+    {
+        "name": "spinel",
+        "species": [
+            "sp",
+            "herc"
+        ],
+        "sites": 3
+    }
+]
+
+
+struct endmember{S,N,I} 
+    name :: S
+    species :: NTuple{N,S}
+    sites :: I
+end
+
