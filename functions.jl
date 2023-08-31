@@ -5,7 +5,6 @@ using Printf
 global R = 8.31446261815324
 
 cmp = ["SIO2", "MGO", "FEO", "CAO", "AL2O3", "NA2O"]
-n_cmp = zeros(size(cmp))
 
 struct Phase
     id::String                  # Name id
