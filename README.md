@@ -20,7 +20,7 @@ $$
 \\=
 \mathcal{G}_i-RT\sum_{k}^{sites}
 \Big[
-\Big(\sum_{j}^{c}s_{ijk}\Big)\ln{\Big(\sum_{j}^{c}N_{jk}\Big)}-
+\Big(\sum_{j}^{c}s_{ijk}\Big)\ln{\Big(\sum_{j}^{c}N_{jk}\Big)}-\\
 \sum_{j}^{c}\Big(s_{ijk}\ln{\Big(\sum_{i}^{species}s_{ijk}n_i}\Big)\Big)\Big] \\
 -\sum_{\beta>\alpha}^{species}W_{i\alpha\beta}
 (\delta_{i\alpha}-\phi_{\alpha})
@@ -28,5 +28,7 @@ $$
 $$
 
 where $N_{jk}$, $N_k$ and $S_{ik}$ are, respectively, the number of atoms of component $j$ on site $k$, the total number of atoms on site $k$, and the sum over the stoichiometric coefficients of species $i$ at site $k$, $s_{ijk}$ is the stoichiometric coefficient of component $j$ on site $k$ in species $i$, and $c$ is the number of components, $\mathcal{G}$ is the Gibbs free energy in cation-ordered pure form, $R$ is the gas constant, and $T$ is the temperature.
+
+
 
 
