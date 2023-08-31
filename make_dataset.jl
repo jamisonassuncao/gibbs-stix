@@ -17,6 +17,7 @@ open(output_filename, "w") do io
         # count components
         comps = split(row.cmp, r"[()]")
         pop!(comps) # pop what is after the `)`
+        n_cmp = zeros(size(cmp))
         for c in 1:2:size(comps)[1]
             p = findfirst(x -> x == comps[c], cmp)
             if isnothing(p)
@@ -46,7 +47,7 @@ open(output_filename, "w") do io
         if index_row != nrow(data)
             write(io, ",\n")
         end
-
+        
     end
 
     write(io, "]")
