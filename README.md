@@ -14,7 +14,6 @@ $$
 \mu_i=
 \mathcal{G}_i-RT\sum_{k}^{sites}
 \Big[S_{ik}\ln{N_k}-\sum_{j}^{comp.}s_{ijk}\ln{N_{jk}}\Big]
-
 $$
 
 $$
@@ -59,7 +58,7 @@ N_k=s_{fo,SiO_2,k}\times n_{fo}+s_{fa,SiO_2,k}\times n_{fa}\\
 $$
 
 $$
-\Sigma (s_{ijk} \ln{N_jk})=\\s_{fo,SiO_2,k}\times \ln{(s_{fo,SiO_2,k}\times n_{fo}+s_{fa,SiO_2,k}\times n_{fa})}\\
+\Sigma (s_{ijk} \ln{N_jk})=\\ s_{fo,SiO_2,k}\times \ln{(s_{fo,SiO_2,k}\times n_{fo}+s_{fa,SiO_2,k}\times n_{fa})}\\
 +s_{fo,MgO,k}\times \ln{(s_{fo,MgO,k}\times n_{fo}+s_{fa,MgO,k}\times n_{fa})}\\
 +s_{fo,FeO,k}\times \ln{(s_{fo,FeO,k}\times n_{fo}+s_{fa,FeO,k}\times n_{fa})}
 $$
