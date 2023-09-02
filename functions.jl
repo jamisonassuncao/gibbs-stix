@@ -1,10 +1,7 @@
-using JSON
-using DataFrames
-using Printf
+using DataFrames, JSON3, Printf
 
 global R = 8.31446261815324
-
-cmp = ["SIO2", "MGO", "FEO", "CAO", "AL2O3", "NA2O"]
+global COMP = ["SIO2", "CAO", "AL2O3", "FEO", "MGO", "NA2O"]
 
 struct Phase
     id::String                  # Name id
@@ -21,12 +18,63 @@ struct Phase
     ηS0::Float64                # c6: Shear strain derivative of the tensorial Gruneisen parameter (ηS0)
     cme::Float64                # c7: Configurational (and magnetic) entropy (J/mol/K)
 end
-# cp(pr,t) = c1 + c2*t + c3/(t*t) + c4*t*t + c5/t**(1/2) + c6/t + c7 /t**3
+
+struct ModelJSON
+    name::String
+    species::Vector{String}
+    sites::Int64
+end
 
 struct Model
     name::String
-    phases::Vector{String}
-    sites::Int
+    species::DataFrame
+    sites::Int64
+end
+
+function read_data(fname::String)
+    return JSON3.read(fname, Vector{Phase}) |> DataFrame
+end
+
+function read_models(fname::String, data::DataFrame, model_names::Vector{String})
+    read_models = JSON3.read(fname, Vector{ModelJSON})
+    models = Vector{Model}()
+    
+    for model in read_models
+        aux_data = DataFrame()
+        if model.name in model_names
+            for i in 1:length(model.species)
+                p = findfirst(x -> x == model.species[i], data.id)
+                push!(aux_data, data[p, :])
+            end
+            push!(models, Model(model.name, aux_data, model.sites))
+        else
+            continue
+        end
+    end
+    return models
+end
+
+function message(str::String)
+    max_dist = 80
+    dist = 3
+
+    if str == "line"
+        println(repeat("=", max_dist))
+    elseif str == "start"
+        println("Starting...")
+    else
+        println(repeat("=", dist), str, repeat("=", max_dist - dist - length(str)))
+    end
+end
+
+function make_comp(comp::Dict{String, Float64})
+    sc = size(COMP)
+    my_comp = zeros(sc)
+    for key in keys(comp)
+        p = findfirst(x -> x == key, COMP)
+        my_comp[p] = comp[key]
+    end
+    return my_comp
 end
 
 """
@@ -80,19 +128,19 @@ This function calculates the Gibbs energy of the `phase`
 # Returns
 - `G::Float64`: Gibbs energy value.
 """
-function gibbs(phase, t=1000.0, p=1000.0)
-    println("Calculating Gibbs energy for `", phase["id"], "` (", phase["fml"], ")")
+function calc_gibbs(phase::DataFrameRow{DataFrame, DataFrames.Index}, p::Float64=1000.0, t::Float64=1000.0)
+    
     tr = 300.0
 
-    v0 = -phase["V0"]
-    nr9 = -9.0 * phase["n"] * R
+    v0 = -phase.V0
+    nr9 = -9.0 * phase.n * R
     nr9t0 = nr9 * tr
-    c1 = -9.0 * phase["V0"] * phase["K0"]
-    c2 = phase["Kp"] / 2.0 - 2.0
+    c1 = -9.0 * phase.V0 * phase.K0
+    c2 = phase.Kp / 2.0 - 2.0
     c3 = 3.0 * c1 * c2
-    aii = 6.0 * phase["γ0"]
-    aiikk2 = 0.5 * aii * (-2.0 + 6.0 * phase["γ0"] - 3.0 * phase["q0"])
-    aii2 = 3 * phase["γ0"]
+    aii = 6.0 * phase.γ0
+    aiikk2 = 0.5 * aii * (-2.0 + 6.0 * phase.γ0 - 3.0 * phase.q0)
+    aii2 = 3 * phase.γ0
 
     # aiikk  = thermo[16]
 
@@ -102,7 +150,7 @@ function gibbs(phase, t=1000.0, p=1000.0)
     iopt21 = 100
     nopt51 = 1.8590370495272219e-13
 
-    t1 = phase["Θ0"] / t
+    t1 = phase.Θ0 / t
     t2 = t / tr
     nr9t = nr9 * t
     # initial guess for volume:
@@ -112,9 +160,9 @@ function gibbs(phase, t=1000.0, p=1000.0)
     tht = t1
     tht0 = tht * t2
 
-    k00 = phase["K0"]
-    k0p = phase["Kp"]
-    γ0 = phase["γ0"]
+    k00 = phase.K0
+    k0p = phase.Kp
+    γ0 = phase.γ0
 
     dfth = nr9t * γ0 / v0 * (3.0 * plg(tht) / tht^3 - log(1.0 - exp(-tht)))
     dfth0 = nr9t0 * γ0 / v0 * (3.0 * plg(tht0) / tht0^3 - log(1.0 - exp(-tht0)))
@@ -248,23 +296,79 @@ function gibbs(phase, t=1000.0, p=1000.0)
     tht = t1 * root
     tht0 = tht * t2
     # helmholtz energy
-    a = phase["F0"] + c1 * f^2 * (0.5 + c2 * f) + nr9 * (t / tht^3 * plg(tht) - tr / tht0^3 * plg(tht0))
+    a = phase.F0 + c1 * f^2 * (0.5 + c2 * f) + nr9 * (t / tht^3 * plg(tht) - tr / tht0^3 * plg(tht0))
     # println("F: ", a)
-    G = a + p * v - t * phase["cme"]
-    @printf("G(%.2f, %.2f): %10.2f\n", float(t), float(p), float(G));
-    println(repeat("=", 40))
+    G = a + p * v - t * phase.cme
     return G
 end
 
-function read_model(modelname="olivine", filename="stx11_solution.json")
-    model = JSON.parsefile(filename)
+function calc_activity(phase::DataFrameRow{DataFrame, DataFrames.Index}, comp::Vector{Float64}, model::Model, amounts::Vector{Float64})
+    # initialization
+    act = 0.0
+    n_species = size(model.species)[1]
+    n_sites = model.sites
+    n_comps = length(comp)
+
+    for _ in 1:n_sites
+
+        sijk1 = [value for value in values(phase.cmp)]
+
+        Sik = sum(sijk1)
+
+        Nk = 0.0
+        for c in 1:n_comps
+            Njk = 0.0
+            for i in 1:n_species
+                sijk2 = [value for value in values(model.species.cmp[i])] 
+                Njk += sijk2[c] .* amounts[i]
+            end
+            Nk += Njk
+        end
+
+        a1 = Sik * log(Nk)
+
+        a2 = 0.0
+        for c in 1:n_comps
+            Njk = 0.0
+            for i in 1:n_species
+                sijk2 = [value for value in values(model.species.cmp[i])] 
+                Njk += sijk2[c] .* amounts[i] 
+            end
+            a2 += (Njk != 0) ? sijk1[c] * log(Njk) : 0
+        end
+
+        act += a1 - a2
+    end
+
+    return act
+end
+
+function calc_excess()
+    excess = 0.0
     
-    for row in model
-        if get(row, "name", nothing) == modelname
-            return row
+    return excess
+end
+
+function gcalc(pressure::Float64, temperature::Float64, comp::Vector{Float64}, models::Vector{Model}, amounts::Vector{Vector{Float64}})
+    
+    μ = Vector{Float64}()
+
+    for model in models
+        n_species = size(model.species)[1]
+        for i in 1:n_species
+            phase = model.species[i, :]
+            title = " `" * phase.id * "` [" * phase.fml * "] "
+            message(title);
+            g = calc_gibbs(phase, pressure, temperature)
+            @printf("𝒢(%.2f, %.2f) \t= %10.2f\n", float(pressure), float(temperature), float(g));
+            a = R * temperature * calc_activity(phase, comp, model, amounts[i])
+            @printf("𝒜 \t\t\t= %10.2f\n", a)
+            e = calc_excess()
+            @printf("𝒳 \t\t\t= %10.2f\n", e)
+            push!(μ, g - a - calc_excess())
         end
     end
-    
-    return nothing
+
+    return μ
 end
-    
+
