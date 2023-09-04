@@ -383,7 +383,8 @@ end
 function gcalc(pressure::Float64, temperature::Float64, comp::Vector{Float64}, models::Vector{Model}, amounts::Vector{Vector{Float64}})
     
     μ = Vector{Float64}()
-    # μ = Vector{Vector{Float64}}()
+    
+    aux = Vector{Float64}()
 
     for (m, model) in enumerate(models)
         μi = Vector{Float64}()
@@ -399,17 +400,19 @@ function gcalc(pressure::Float64, temperature::Float64, comp::Vector{Float64}, m
             e = calc_excess(phase, model, amounts[m])
             @printf("excess \t\t\t= %10.2f\n", e)
             μ_aux = amounts[m][i] * (g - a - e)
+            push!(aux, e)
             @printf("μ(%s) \t\t\t= %10.2f\n", phase.id, μ_aux)
             push!(μi, μ_aux)
+            
         end
+        
         push!(μ, sum(μi))
         message("line")
         @printf("= μ \t\t\t= %10.2f\n", sum(μi))
         message("line")
-        # push!(μ, μi)
     end
 
-    return μ
+    return aux
 end
 
 function span_gcalc(n_span::Int64, pressure::Float64, temperature::Float64, comp::Vector{Float64}, models::Vector{Model},)
