@@ -22,12 +22,14 @@ end
 struct ModelJSON
     name::String
     species::Vector{String}
+    margules::Dict{String, Float64}
     sites::Int64
 end
 
 struct Model
     name::String
     species::DataFrame
+    margules::Dict{String, Float64}
     sites::Int64
 end
 
@@ -46,7 +48,7 @@ function read_models(fname::String, data::DataFrame, model_names::Vector{String}
                 p = findfirst(x -> x == model.species[i], data.id)
                 push!(aux_data, data[p, :])
             end
-            push!(models, Model(model.name, aux_data, model.sites))
+            push!(models, Model(model.name, aux_data, model.margules, model.sites))
         else
             continue
         end
@@ -337,38 +339,94 @@ function calc_activity(phase::DataFrameRow{DataFrame, DataFrames.Index}, comp::V
             a2 += (Njk != 0) ? sijk1[c] * log(Njk) : 0
         end
 
-        act += a1 - a2
+        act += (a1 - a2)
     end
 
     return act
 end
 
-function calc_excess()
-    excess = 0.0
+function eye(i::Int64, j::Int64)
+    return i == j ? 1.0 : 0.0
+end
+
+function calc_excess(phase::DataFrameRow{DataFrame, DataFrames.Index}, model::Model, amounts::Vector{Float64})
     
+    excess = 0.0
+    n_species = size(model.species)[1]
+    W = [value for value in values(model.margules)]
+    # println(model.margules)
+
+    # sum_v = 0.0
+    # for i in 1:n_species
+    #     sum_v += amounts[i] * v[i]
+    # end
+
+    # for i in 1:n_species
+    #     mat_phi[i] = (amounts[i] * v[i]) / sum_v
+    # end
+
+    for i in 1:n_species
+        excess = 0.0
+        it = 1
+        for j in 1:n_species-1
+            for k in j+1:n_species
+                excess -= (eye(i,j) - amounts[j]) * (eye(i,k) - amounts[k]) * W[it]
+                # excess -= (eye(i,j) - mat_phi[j]) * (eye(i,k) - mat_phi[k]) * (W[it] * 2.0 * v[i] / (v[j] + v[k]))
+                it += 1
+            end
+        end
+    end
+
     return excess
 end
 
 function gcalc(pressure::Float64, temperature::Float64, comp::Vector{Float64}, models::Vector{Model}, amounts::Vector{Vector{Float64}})
     
     μ = Vector{Float64}()
+    # μ = Vector{Vector{Float64}}()
 
-    for model in models
+    for (m, model) in enumerate(models)
+        μi = Vector{Float64}()
         n_species = size(model.species)[1]
         for i in 1:n_species
             phase = model.species[i, :]
-            title = " `" * phase.id * "` [" * phase.fml * "] "
+            title = " " * string(amounts[m][i] * 100.0) * " % of `" * phase.id * "` [" * phase.fml * "] "
             message(title);
             g = calc_gibbs(phase, pressure, temperature)
-            @printf("𝒢(%.2f, %.2f) \t= %10.2f\n", float(pressure), float(temperature), float(g));
-            a = R * temperature * calc_activity(phase, comp, model, amounts[i])
-            @printf("𝒜 \t\t\t= %10.2f\n", a)
-            e = calc_excess()
-            @printf("𝒳 \t\t\t= %10.2f\n", e)
-            push!(μ, g - a - calc_excess())
+            @printf("G_i(%.2f, %.2f) \t= %10.2f\n", float(pressure), float(temperature), float(g))
+            a = R * temperature * calc_activity(phase, comp, model, amounts[m])
+            @printf("activity \t\t= %10.2f\n", a)
+            e = calc_excess(phase, model, amounts[m])
+            @printf("excess \t\t\t= %10.2f\n", e)
+            μ_aux = amounts[m][i] * (g - a - e)
+            @printf("μ(%s) \t\t\t= %10.2f\n", phase.id, μ_aux)
+            push!(μi, μ_aux)
         end
+        push!(μ, sum(μi))
+        message("line")
+        @printf("= μ \t\t\t= %10.2f\n", sum(μi))
+        message("line")
+        # push!(μ, μi)
     end
 
     return μ
 end
 
+function span_gcalc(n_span::Int64, pressure::Float64, temperature::Float64, comp::Vector{Float64}, models::Vector{Model},)
+    g = Vector{Float64}()
+
+    for a in 0:n_span
+        v = a / n_span
+        amounts = [[v, 1-v]]
+        push!(g, sum(gcalc(pressure, temperature, comp, models, amounts)))
+    end
+
+    fig = Figure()
+    Axis(fig[1, 1], title="Gibss energy")
+    xlims!(0, 1)
+    lines!([x for x in 0:n_span] ./ n_span, g)
+    # invertaxis!(fig, :gibbs)
+    display(fig)
+    
+    return g
+end

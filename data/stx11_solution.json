@@ -5,6 +5,9 @@
             "fo",
             "fa"
         ],
+        "margules": {
+            "fo,fa": 7.6e3
+        },
         "sites": 1
     },
     {
@@ -13,6 +16,9 @@
             "sp",
             "herc"
         ],
+        "margules": {
+            "sp,herc": -0.5e3
+        },
         "sites": 3
     }
 ]
