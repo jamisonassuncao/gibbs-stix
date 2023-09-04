@@ -62,5 +62,3 @@ $$
 +s_{fo,MgO,k}\times \ln{(s_{fo,MgO,k}\times n_{fo}+s_{fa,MgO,k}\times n_{fa})} \\
 +s_{fo,FeO,k}\times \ln{(s_{fo,FeO,k}\times n_{fo}+s_{fa,FeO,k}\times n_{fa})}
 $$
-
-
