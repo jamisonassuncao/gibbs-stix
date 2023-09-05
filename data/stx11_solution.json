@@ -11,13 +11,25 @@
         "sites": 1
     },
     {
+        "name": "perovskite",
+        "species": [
+            "aperov",
+            "perov",
+            "fperov"
+        ],
+        "margules": {
+            "pervo,aperov": 116e3
+        },
+        "sites": 3
+    },
+    {
         "name": "spinel",
         "species": [
             "sp",
             "herc"
         ],
         "margules": {
-            "sp,herc": -0.5e3
+            "sp,herc": 5.0e3
         },
         "sites": 3
     }
