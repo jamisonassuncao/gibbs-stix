@@ -1,7 +1,7 @@
 using DataFrames, JSON3, Printf
 
 global R = 8.31446261815324
-global COMP = ["SIO2", "CAO", "AL2O3", "FEO", "MGO", "NA2O"]
+global COMP = ["CAO", "AL2O3", "FEO", "MGO", "NA2O"]
 
 struct Phase
     id::String                  # Name id
@@ -304,7 +304,7 @@ function calc_gibbs(phase::DataFrameRow{DataFrame, DataFrames.Index}, p::Float64
     return G
 end
 
-function calc_activity(phase::DataFrameRow{DataFrame, DataFrames.Index}, comp::Vector{Float64}, model::Model, amounts::Vector{Float64})
+function calc_activity(phase::DataFrameRow{DataFrame, DataFrames.Index}, comp::Vector{Float64}, model::Model, species_fractions::Vector{Float64})
     # initialization
     act = 0.0
     n_species = size(model.species)[1]
@@ -322,7 +322,7 @@ function calc_activity(phase::DataFrameRow{DataFrame, DataFrames.Index}, comp::V
             Njk = 0.0
             for i in 1:n_species
                 sijk2 = [value for value in values(model.species.cmp[i])] 
-                Njk += sijk2[c] .* amounts[i]
+                Njk += sijk2[c] .* species_fractions[i]
             end
             Nk += Njk
         end
@@ -334,7 +334,7 @@ function calc_activity(phase::DataFrameRow{DataFrame, DataFrames.Index}, comp::V
             Njk = 0.0
             for i in 1:n_species
                 sijk2 = [value for value in values(model.species.cmp[i])] 
-                Njk += sijk2[c] .* amounts[i] 
+                Njk += sijk2[c] .* species_fractions[i] 
             end
             a2 += (Njk != 0) ? sijk1[c] * log(Njk) : 0
         end
@@ -349,7 +349,7 @@ function eye(i::Int64, j::Int64)
     return i == j ? 1.0 : 0.0
 end
 
-function calc_excess(phase::DataFrameRow{DataFrame, DataFrames.Index}, model::Model, amounts::Vector{Float64})
+function calc_excess(i::Int64, phase::DataFrameRow{DataFrame, DataFrames.Index}, model::Model, species_fractions::Vector{Float64})
     
     excess = 0.0
     n_species = size(model.species)[1]
@@ -358,77 +358,87 @@ function calc_excess(phase::DataFrameRow{DataFrame, DataFrames.Index}, model::Mo
 
     # sum_v = 0.0
     # for i in 1:n_species
-    #     sum_v += amounts[i] * v[i]
+    #     sum_v += species_fractions[i] * v[i]
     # end
 
     # for i in 1:n_species
-    #     mat_phi[i] = (amounts[i] * v[i]) / sum_v
+    #     mat_phi[i] = (species_fractions[i] * v[i]) / sum_v
     # end
 
-    for i in 1:n_species
-        excess = 0.0
-        it = 1
-        for j in 1:n_species-1
-            for k in j+1:n_species
-                excess -= (eye(i,j) - amounts[j]) * (eye(i,k) - amounts[k]) * W[it]
-                # excess -= (eye(i,j) - mat_phi[j]) * (eye(i,k) - mat_phi[k]) * (W[it] * 2.0 * v[i] / (v[j] + v[k]))
-                it += 1
-            end
+    # for i in 1:n_species
+    excess = 0.0
+    it = 1
+    for j in 1:n_species-1
+        for k in j+1:n_species
+            excess += (eye(i,j) - species_fractions[j]) * (eye(i,k) - species_fractions[k]) * W[it]
+            # excess -= (eye(i,j) - mat_phi[j]) * (eye(i,k) - mat_phi[k]) * (W[it] * 2.0 * v[i] / (v[j] + v[k]))
+            it += 1
         end
     end
+    # end
 
     return excess
 end
 
-function gcalc(pressure::Float64, temperature::Float64, comp::Vector{Float64}, models::Vector{Model}, amounts::Vector{Vector{Float64}})
+function gcalc(pressure::Float64, temperature::Float64, comp::Vector{Float64}, models::Vector{Model}, species_fractions::Vector{Vector{Float64}})
     
     μ = Vector{Float64}()
-    
-    aux = Vector{Float64}()
 
     for (m, model) in enumerate(models)
+        gi = Vector{Float64}() 
+        ai = Vector{Float64}()    
+        xi = Vector{Float64}()
         μi = Vector{Float64}()
         n_species = size(model.species)[1]
         for i in 1:n_species
             phase = model.species[i, :]
-            title = " " * string(amounts[m][i] * 100.0) * " % of `" * phase.id * "` [" * phase.fml * "] "
+            title = " " * string(species_fractions[m][i] * 100.0) * " % of `" * phase.id * "` [" * phase.fml * "] "
             message(title);
             g = calc_gibbs(phase, pressure, temperature)
             @printf("G_i(%.2f, %.2f) \t= %10.2f\n", float(pressure), float(temperature), float(g))
-            a = R * temperature * calc_activity(phase, comp, model, amounts[m])
+            push!(gi, g)
+            a = R * temperature * calc_activity(phase, comp, model, species_fractions[m]) 
             @printf("activity \t\t= %10.2f\n", a)
-            e = calc_excess(phase, model, amounts[m])
+            push!(ai, a)
+            e = calc_excess(i, phase, model, species_fractions[m])
             @printf("excess \t\t\t= %10.2f\n", e)
-            μ_aux = amounts[m][i] * (g - a - e)
-            push!(aux, e)
-            @printf("μ(%s) \t\t\t= %10.2f\n", phase.id, μ_aux)
-            push!(μi, μ_aux)
+            push!(xi, e)
+            @printf("μ(%s) \t\t\t= %10.2f\n", phase.id, (g - a - e))
+            push!(μi, (g - a - e))
             
         end
         
-        push!(μ, sum(μi))
+        push!(μ, sum(μi .* species_fractions[m]))
         message("line")
-        @printf("= μ \t\t\t= %10.2f\n", sum(μi))
+        @printf("= μ \t\t\t= %10.2f\n", sum(μ))
         message("line")
     end
 
-    return aux
+    return μ
 end
 
-function span_gcalc(n_span::Int64, pressure::Float64, temperature::Float64, comp::Vector{Float64}, models::Vector{Model},)
+function span_gcalc(n_span::Int64, pressure::Float64, temperature::Float64, comp::Vector{Float64}, models::Vector{Model})
+    
     g = Vector{Float64}()
+    x = [x for x in 0:n_span] ./ n_span
 
     for a in 0:n_span
         v = a / n_span
-        amounts = [[v, 1-v]]
-        push!(g, sum(gcalc(pressure, temperature, comp, models, amounts)))
+        species_fractions = [[v, 1-v]]
+        push!(g, sum(gcalc(pressure, temperature, comp, models, species_fractions)))
     end
 
     fig = Figure()
-    Axis(fig[1, 1], title="Gibss energy")
+    Axis(
+        fig[1, 1], 
+        title="Gibss free energy", 
+        xticks = 0.0:0.1:1.0, 
+        xlabel = "nᵢ", 
+        ylabel = "𝒢 (kJ)",
+        ytickformat = "{:.2f}"
+        )
     xlims!(0, 1)
-    lines!([x for x in 0:n_span] ./ n_span, g)
-    # invertaxis!(fig, :gibbs)
+    lines!(x, g / 1.0e3)
     display(fig)
     
     return g
