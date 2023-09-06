@@ -1,0 +1,199 @@
+Perple_X release 7.1.1, Jul 13, 2023.
+
+Copyright (C) 1986-2023 James A D Connolly <www.perplex.ethz.ch/copyright.html>.
+
+Enter the project name (the name assigned in BUILD) [default = my_project]:
+pyroxene
+
+Reading problem definition from file: pyroxene.dat                                                                                        
+Reading thermodynamic data from file: datafiles/stx11ver.dat                                                                              
+Reading solution models from file: datafiles/stx11_solution_model.dat                                                                  
+
+Reading Perple_X options from: optionfiles/perplex_option.dat                                                                      
+Writing seismic data options to: pyroxene_seismic_data.txt                                                                           
+Writing pseudocompound glossary to: not requested                                                                                       
+Writing Perple_X option summary to: not requested                                                                                       
+
+Perple_X computational option settings for MEEMUM:
+
+    Keyword:               Value:     Permitted values [default]:
+
+  Free energy minimization options:
+
+    MINFRC_diff_increment   0.1E-6    [1e-7] 1e-3 => 1e-9
+    MINFXC_solver            0        [0] >= 0 - speci2, -1 - MINFXC
+    optimization_max_it     40        [40] >1
+    optimization_precision  0.1E-3    [1e-4], 1e-1 => 1e-6, absolute
+    dynamic_LP_start        war       [warm] cold hot
+    static_LP_start         war       [hot] cold warm
+    order_check             F         [F] T
+    refinement_points        5        [auto] 1->14
+    refinement_switch       F         [T] F
+    scatter-points          T         [T] F
+    scatter-increment       0.1E-1    [1e-2] 1e-2 => 1e-7
+    solvus_tolerance_II     aut       [0.2] 0->1 
+    zero_mode               0.1E-5    [1e-6] 0->1; < 0 => off
+
+  Solution subdivision options:
+
+    initial_resolution:     0.2000    [1/5] 0->1; 0 => off
+    stretch_factor          0.0020    [2d-3] >0 
+    non_linear_switch       F         [F] T
+    subdivision_override    off       [lin] off str
+    refine_endmembers       F         [F] T
+
+  Thermodynamic options:
+
+    solvus_tolerance        aut       [aut] or 0->1; aut = automatic, 0 => p=c pseudocompounds, 1 => homogenize
+    T_stop (K)              0.0       [0]
+    T_melt (K)              873.0     [873]
+    approx_alpha            T         [T] F
+    Anderson-Gruneisen      F         [F] T
+    speciation_precision    0.1E-4    [1d-5] <1; absolute
+    speciation_max_it       100       [100]
+    function_tolerance_exp  0.8       [0.8] sets x in tol = epsmch^x
+    GFSM                    F         [F] T GFSM/special_component toggle
+    hybrid_EoS_H2O          4         [4] 0-2, 4-7
+    hybrid_EoS_CO2          4         [4] 0-4, 7
+    hybrid_EoS_CH4          0         [0] 0-1, 7
+    aq_lagged_speciation    F         [F] T
+    aq_ion_H+               T         [T] F => use OH-
+    aq_oxide_components     F         [F] T
+    aq_solvent_solvus       T         [T] F
+    aq_solvent_solvus_tol   0.5       [0.5] 0-1
+    aq_vapor_epsilon        1.0       [1.]
+    fd_expansion_factor     2.0       [2] >0
+    finite_difference_p     0.1E+05   [1d4] >0; fraction = 0.1E-02   [1d-2]
+
+  Input/Output options:
+
+    aq_output               T         [T] F
+    aq_species              20        [20] 0-150
+    aq_solvent_composition  y         [y] m: y => mol fraction, m => molality
+    aq_solute_composition   m         y [m]: y => mol fraction, m => molality
+    logarithmic_p           F         [F] T
+    logarithmic_X           F         [F] T
+    bad_number             NaN        [NaN]
+    composition_constant    F         [F] T
+    composition_phase       mol       [mol] wt
+    composition_system      wt        [wt] mol
+    proportions             vol       [vol] wt mol
+    melt_is_fluid           T         [T] F
+    solution_names          mod       [mod] abb ful
+    structural_formulae     T         [T] F
+    species_output          T         [T] F
+    endmember_Gs            F         [F] T
+    seismic_output          som       [some] none all
+    poisson_test            F         [F] T
+    timing                  T         [F] T
+    auto_exclude            T         [T] F
+    output_iteration_detai  F         [F] T
+    output_iteration_g      F         [F] T
+
+  Seismic wavespeed computational options:
+
+    seismic_data_file       T         [F] T
+    bounds                  VRH       [VRH] HS
+    vrh/hs_weighting        0.5       [0.5] 0->1
+    explicit_bulk_modulus   T         [T] F
+    poisson_ratio           on        [on] all off; Poisson ratio = 0.35
+    seismic_output          som       [some] none all
+    poisson_test            F         [F] T
+    Tisza_test              F         [F] T
+    fluid_shear_modulus     T         [T] F
+    phi_d                   0.36      [0.36] 0->1
+
+  Information file output options:
+
+    option_list_files       F         [F] T; echo computational options
+    pseudocompound_file     F         [F] T; echo static pseudocompound compositions
+
+  Error/warning control options:
+
+    pause_on_error          T         [T] F
+    max_warn_limit            5       [5]
+    warn_interactive        T         [T] F
+    aq_error_ver100         F         [F] T, abort during iteration
+    aq_error_ver101         T         [T] F, solute undersaturation abort
+    aq_error_ver102         T         [T] F, pure + impure solvent abort
+    aq_error_ver103         T         [T] F, out-of-range HKF g abort
+    aq_error_ver104         T         [T] F, abort on failed respeciation
+    warning_ver637          T         [T] F
+    error_ver109            T         [T] F
+    do_not_reset_options    F         [F] T, prevents automatic resets
+
+To change these options see: www.perplex.ethz.ch/perplex_options.html
+
+
+**warning ver099**  no data for aqueous species, aq_output and aq_lagged_speciation disabled.
+
+--------------------------------------------------------------------------------
+Solution model summary:
+
+       4 pseudocompounds generated for: C2/c      
+
+Total number of pseudocompounds:       4
+
+Summary of included solution models:
+
+C2/c      
+--------------------------------------------------------------------------------
+
+Interactively enter bulk compositions (y/n)?
+If you answer no, MEEMUM uses the bulk composition specified in the input file.
+
+n
+
+Enter (zeroes to quit) T(K)     P(bar)  
+1000 1000
+
+----------------------------------------
+
+Stable phases at:
+                             T(K)     =  1000.00    
+                             P(bar)   =  1000.00    
+
+
+Phase Compositions (molar  proportions):
+                   wt %      vol %     mol %     mol        MGO      SIO2     FEO  
+ C2/c             100.00    100.00    100.00     1.00      1.00000  2.00000  1.00000
+
+Phase speciation (molar proportions):
+
+ C2/c              c2/c: 0.50000, fc2/c: 0.50000
+
+Structural formulae for 688 format solution models: none stable.
+
+
+Molar Properties and Density:
+                    N(g)          G(J)     S(J/K)     V(J/bar)      Cp(J/K)       Alpha(1/K)  Beta(1/bar)    Cp/Cv    Density(kg/m3)
+ C2/c              232.32       -2790169   438.10       6.3917       254.50      0.42783E-04  0.99648E-06   1.0484       3634.7    
+ System            232.32       -2790167   438.10       6.3917       254.50      0.42783E-04  0.99648E-06   1.0484       3634.7    
+
+Seismic Properties:
+                 Gruneisen_T      Ks(bar)      Mu(bar)    V0(km/s)     Vp(km/s)     Vs(km/s)   Poisson ratio
+ C2/c               1.1304      0.10521E+07  0.69383E+06   5.3801       7.3755       4.3691      0.22968    
+ System             1.1304      0.10521E+07  0.69383E+06   5.3801       7.3755       4.3691      0.22968    
+
+Bulk Composition:
+              mol        g        wt %     mol/kg
+    MGO       1.000    40.304    17.349     4.304
+    SIO2      2.000   120.168    51.726     8.609
+    FEO       1.000    71.844    30.925     4.304
+
+Other Bulk Properties:
+
+ Enthalpy (J/kg) = -.101244E+08
+ Specific Enthalpy (J/m3) = -.367989E+11
+ Entropy (J/K/kg) =  1885.81    
+ Specific Entropy (J/K/m3) = 0.685430E+07
+ Heat Capacity (J/K/kg) =  1095.47    
+ Specific Heat Capacity (J/K/m3) = 0.398168E+07
+
+
+Chemical Potentials (J/mol):
+
+      MGO           SIO2          FEO  
+    -638029.      -914353.      -323435.    
+
+Variance (c-p+2) =  4

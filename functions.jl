@@ -56,7 +56,7 @@ function read_models(fname::String, data::DataFrame, model_names::Vector{String}
     return models
 end
 
-function message(str::String)
+function message(str::String, arg::Vector{Float64}=[0.0])
     max_dist = 80
     dist = 3
 
@@ -64,6 +64,17 @@ function message(str::String)
         println(repeat("=", max_dist))
     elseif str == "start"
         println("Starting...")
+    elseif str == "PT"
+        @printf(" * P: %.2f bar", arg[1])
+        @printf(", T: %.2f K\n", arg[2])
+    elseif str == "gibbs"
+        @printf(" * gibbs: \t%.2f\n", arg[1])
+    elseif str == "activity"
+        @printf(" * activity: \t%.2f\n", arg[1])
+    elseif str == "excess"
+        @printf(" * excess: \t%.2f\n", arg[1])
+    elseif str == "μ"
+        @printf(" * μ: \t\t%.2f\n", arg[1])
     else
         println(repeat("=", dist), str, repeat("=", max_dist - dist - length(str)))
     end
@@ -309,11 +320,14 @@ function calc_activity(phase::DataFrameRow{DataFrame, DataFrames.Index}, comp::V
     act = 0.0
     n_species = size(model.species)[1]
     n_sites = model.sites
-    n_comps = length(comp)
+    n_comps = length(model.species.cmp[1])
 
-    for _ in 1:n_sites
+    aux = [1.0/8.0, 1.0/4.0]
+
+    for k in 1:n_sites
 
         sijk1 = [value for value in values(phase.cmp)]
+        sijk1 .*= aux[k]
 
         Sik = sum(sijk1)
 
@@ -322,6 +336,7 @@ function calc_activity(phase::DataFrameRow{DataFrame, DataFrames.Index}, comp::V
             Njk = 0.0
             for i in 1:n_species
                 sijk2 = [value for value in values(model.species.cmp[i])] 
+                sijk2 .*= aux[k]
                 Njk += sijk2[c] .* species_fractions[i]
             end
             Nk += Njk
@@ -334,11 +349,12 @@ function calc_activity(phase::DataFrameRow{DataFrame, DataFrames.Index}, comp::V
             Njk = 0.0
             for i in 1:n_species
                 sijk2 = [value for value in values(model.species.cmp[i])] 
-                Njk += sijk2[c] .* species_fractions[i] 
+                sijk2 .*= aux[k]
+                Njk += sijk2[c] .* species_fractions[i]
             end
             a2 += (Njk != 0) ? sijk1[c] * log(Njk) : 0
         end
-
+        # println(a1, ", ", a2, " = ", a1 -a2)
         act += (a1 - a2)
     end
 
@@ -395,22 +411,23 @@ function gcalc(pressure::Float64, temperature::Float64, comp::Vector{Float64}, m
             title = " " * string(species_fractions[m][i] * 100.0) * " % of `" * phase.id * "` [" * phase.fml * "] "
             message(title);
             g = calc_gibbs(phase, pressure, temperature)
-            @printf("G_i(%.2f, %.2f) \t= %10.2f\n", float(pressure), float(temperature), float(g))
+            message("PT", [pressure, temperature])
+            message("gibbs", [g])
             push!(gi, g)
             a = R * temperature * calc_activity(phase, comp, model, species_fractions[m]) 
-            @printf("activity \t\t= %10.2f\n", a)
+            message("activity", [a])
             push!(ai, a)
             e = calc_excess(i, phase, model, species_fractions[m])
-            @printf("excess \t\t\t= %10.2f\n", e)
+            message("excess", [e])
             push!(xi, e)
-            @printf("μ(%s) \t\t\t= %10.2f\n", phase.id, (g - a - e))
+            message("μ", [g - a - e])
             push!(μi, (g - a - e))
             
         end
         
         push!(μ, sum(μi .* species_fractions[m]))
         message("line")
-        @printf("= μ \t\t\t= %10.2f\n", sum(μ))
+        @printf(" * μ : \t\t%10.2f\n", sum(μ))
         message("line")
     end
 
