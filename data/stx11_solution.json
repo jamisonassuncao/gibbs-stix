@@ -1,5 +1,16 @@
 [
     {
+        "name": "C2/c pyroxene",
+        "species": [
+            "c2/c",
+            "fc2/c"
+        ],
+        "margules":{
+            "c2/c,fc2/c": 0.0
+        },
+        "sites": 1
+    },
+    {
         "name": "olivine",
         "species": [
             "fo",
@@ -31,6 +42,6 @@
         "margules": {
             "sp,herc": 5.0e3
         },
-        "sites": 3
+        "sites": 2
     }
 ]
