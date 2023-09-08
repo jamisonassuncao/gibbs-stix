@@ -77,8 +77,14 @@ function message(str::String, arg::Vector{Float64}=[0.0])
         @printf(" * activity: \t%15.2f\n", arg[1])
     elseif str == "excess"
         @printf(" * excess: \t%15.2f\n", arg[1])
-    elseif str == "μ"
+    elseif str == "μi"
         @printf(" * μ: \t\t%15.2f\n", arg[1])
+    elseif str == "μ"
+        μp = -8623709.0
+        @printf(" * μp:\t\t%15.2f\n", μp)
+        @printf(" * μ: \t\t%15.2f\n", arg[1])
+        @printf(" * diff: \t%15.2f\n", μp-arg[1])
+        @printf(" * diff(%%): \t%15.2e\n", 1.0-(arg[1]/μp))
     else
         println(repeat("=", dist), str, repeat("=", max_dist - dist - length(str)))
     end
@@ -325,11 +331,14 @@ function calc_activity(phase::DataFrameRow{DataFrame, DataFrames.Index}, index::
     n_species = size(model.species)[1]
     n_sites = model.sites
     n_comps = length(model.species.cmp[1])
-
+    # ["CAO", "AL2O3", "FEO", "MGO", "NA2O"]
     # sijk = [[[0.0, 0.5, 0.0, 3.0, 0.0], [0.0, 3.5, 0.0, 1.0, 0.0]], # species sp
-    #         [[0.0, 0.5, 3.0, 0.0, 0.0], [0.0, 3.5, 1.0, 0.0, 0.0]]] # species herc
-
-    # aux = [4.0, 8.0]
+            # [[0.0, 0.5, 3.0, 0.0, 0.0], [0.0, 3.5, 1.0, 0.0, 0.0]]] # species herc
+    sijk = [[[0.0, 1.0, 0.0, 3.0, 0.0], [0.0, 7.0, 0.0, 1.0, 0.0]], # species sp
+            [[0.0, 1.0, 3.0, 0.0, 0.0], [0.0, 7.0, 1.0, 0.0, 0.0]]] # species herc
+    sijk .*= (0.5)
+    aux = [[[0.0, 3.0/4.0, 0.0, 1.0/4.0, 0.0], [0.0, 1.0/8.0, 0.0, 7.0/8.0, 0.0]],
+           [[0.0, 3.0/4.0, 1.0/4.0, 0.0, 0.0], [0.0, 1.0/8.0, 7.0/8.0, 0.0, 0.0]]] 
 
     # aux = [[[1.0/8.0, 1.0/4.0],
     #         [1.0/8.0, 1.0/4.0]],
@@ -348,11 +357,12 @@ function calc_activity(phase::DataFrameRow{DataFrame, DataFrames.Index}, index::
 
     for k in 1:n_sites
 
-        sijk1 = [value for value in values(phase.cmp)]
-        # sijk1 = sijk[index][k]
+        # sijk1 = [value for value in values(phase.cmp)]
+        sijk1 = sijk[index][k] #./ 0.25
         # println(sijk1)
         # sijk1 .*= aux[index][k][]
         # sijk1 .*= aux[k][index]
+        # sijk1 .*= aux[index][k]
 
         Sik = sum(sijk1)
 
@@ -360,22 +370,24 @@ function calc_activity(phase::DataFrameRow{DataFrame, DataFrames.Index}, index::
         for c in 1:n_comps
             Njk = 0.0
             for i in 1:n_species
-                # sijk2 = sijk[i][k]
-                sijk2 = [value for value in values(model.species.cmp[i])] 
-                # sijk2 .*= aux[k][i]
+                sijk2 = sijk[i][k] 
+                # sijk2 = [value for value in values(model.species.cmp[i])] 
+                # sijk2 .*= aux[i][k]
                 Njk += sijk2[c] .* species_fractions[i] #.* aux[k]
+                println("i: ", c, ", Njk: ", Njk)
             end
             Nk += Njk
         end
+        println("Nk: ", Nk)
         a1 = Sik * log(Nk)
 
         a2 = 0.0
         for c in 1:n_comps
             Njk = 0.0
             for i in 1:n_species
-                # sijk2 = sijk[i][k]
-                sijk2 = [value for value in values(model.species.cmp[i])] 
-                # sijk2 .*= aux[k][i]
+                sijk2 = sijk[i][k] 
+                # sijk2 = [value for value in values(model.species.cmp[i])] 
+                # sijk2 .*= aux[i][k]
                 Njk += sijk2[c] .* species_fractions[i] #.* aux[k]
             end
             a2 += (Njk != 0) ? sijk1[c] * log(Njk) : 0.0
@@ -445,7 +457,7 @@ function gcalc(pressure::Float64, temperature::Float64, models::Vector{Model}, s
             e = calc_excess(i, phase, model, species_fractions[m])
             message("excess", [e])
             push!(xi, e)
-            message("μ", [g - a - e])
+            message("μi", [g - a - e])
             push!(μi, (g - a - e))
             
         end
@@ -467,7 +479,7 @@ function span_gcalc(n_span::Int64, pressure::Float64, temperature::Float64, mode
     for a in 0:n_span
         v = a / n_span
         species_fractions = [[v, 1-v]]
-        push!(g, sum(gcalc(pressure, temperature, comp, models, species_fractions)))
+        push!(g, sum(gcalc(pressure, temperature, models, species_fractions)))
     end
 
     fig = Figure()
