@@ -74,7 +74,7 @@ function message(str::String, arg::Vector{Float64}=[0.0])
     elseif str == "gibbs"
         @printf(" * gibbs: \t%15.2f\n", arg[1])
     elseif str == "activity"
-        @printf(" * activity: \t%15.2f\n", arg[1])
+        @printf(" * R*T*log(a): \t%15.2f\n", arg[1])
     elseif str == "excess"
         @printf(" * excess: \t%15.2f\n", arg[1])
     elseif str == "μi"
@@ -334,11 +334,16 @@ function calc_activity(phase::DataFrameRow{DataFrame, DataFrames.Index}, index::
     # ["CAO", "AL2O3", "FEO", "MGO", "NA2O"]
     # sijk = [[[0.0, 0.5, 0.0, 3.0, 0.0], [0.0, 3.5, 0.0, 1.0, 0.0]], # species sp
             # [[0.0, 0.5, 3.0, 0.0, 0.0], [0.0, 3.5, 1.0, 0.0, 0.0]]] # species herc
+    # sijk = [[[0.0, 1.0, 0.0, 3.0, 0.0], [0.0, 7.0, 0.0, 1.0, 0.0]], # species sp
+    #         [[0.0, 1.0, 3.0, 0.0, 0.0], [0.0, 7.0, 1.0, 0.0, 0.0]]] # species herc
     sijk = [[[0.0, 1.0, 0.0, 3.0, 0.0], [0.0, 7.0, 0.0, 1.0, 0.0]], # species sp
             [[0.0, 1.0, 3.0, 0.0, 0.0], [0.0, 7.0, 1.0, 0.0, 0.0]]] # species herc
-    sijk .*= (0.5)
-    aux = [[[0.0, 3.0/4.0, 0.0, 1.0/4.0, 0.0], [0.0, 1.0/8.0, 0.0, 7.0/8.0, 0.0]],
-           [[0.0, 3.0/4.0, 1.0/4.0, 0.0, 0.0], [0.0, 1.0/8.0, 7.0/8.0, 0.0, 0.0]]] 
+    # sijk = [[[0.0, 1.0, 0.0, 3.0, 0.0], [0.0, 7.0, 0.0, 1.0, 0.0]], # species sp
+            # [[0.0, 1.0, 3.0, 0.0, 0.0], [0.0, 7.0, 1.0, 0.0, 0.0]]] # species herc
+    # sijk = [[4, 0, 8, 16], [0, 4, 8, 16]]
+    # sijk .*= (0.5)
+    # aux = [[[0.0, 3.0/4.0, 0.0, 1.0/4.0, 0.0], [0.0, 1.0/8.0, 0.0, 7.0/8.0, 0.0]],
+    #        [[0.0, 3.0/4.0, 1.0/4.0, 0.0, 0.0], [0.0, 1.0/8.0, 7.0/8.0, 0.0, 0.0]]] 
 
     # aux = [[[1.0/8.0, 1.0/4.0],
     #         [1.0/8.0, 1.0/4.0]],
@@ -358,7 +363,7 @@ function calc_activity(phase::DataFrameRow{DataFrame, DataFrames.Index}, index::
     for k in 1:n_sites
 
         # sijk1 = [value for value in values(phase.cmp)]
-        sijk1 = sijk[index][k] #./ 0.25
+        sijk1 = sijk[index][k] 
         # println(sijk1)
         # sijk1 .*= aux[index][k][]
         # sijk1 .*= aux[k][index]
@@ -374,11 +379,11 @@ function calc_activity(phase::DataFrameRow{DataFrame, DataFrames.Index}, index::
                 # sijk2 = [value for value in values(model.species.cmp[i])] 
                 # sijk2 .*= aux[i][k]
                 Njk += sijk2[c] .* species_fractions[i] #.* aux[k]
-                println("i: ", c, ", Njk: ", Njk)
+                # println("i: ", c, ", Njk: ", Njk)
             end
             Nk += Njk
         end
-        println("Nk: ", Nk)
+        # println("Nk: ", Nk)
         a1 = Sik * log(Nk)
 
         a2 = 0.0
@@ -392,10 +397,12 @@ function calc_activity(phase::DataFrameRow{DataFrame, DataFrames.Index}, index::
             end
             a2 += (Njk != 0) ? sijk1[c] * log(Njk) : 0.0
         end
-        # println(a1, ", ", a2, " = ", a1 -a2)
+        # println(a1, ", ", a2, " = ", a1 - a2)
         act += (a1 - a2)
     end
-
+    # println(sijk)
+    @printf(" * log(a): \t%15.2f\n", act)
+    @printf(" * a: \t%15.2f\n", exp(act))
     return act
 end
 
