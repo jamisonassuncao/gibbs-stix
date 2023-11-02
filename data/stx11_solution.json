@@ -1,7 +1,7 @@
 [
     {
         "name": "C2/c pyroxene",
-        "species": [
+        "endmembers": [
             "c2/c",
             "fc2/c"
         ],
@@ -12,7 +12,7 @@
     },
     {
         "name": "olivine",
-        "species": [
+        "endmembers": [
             "fo",
             "fa"
         ],
@@ -23,7 +23,7 @@
     },
     {
         "name": "perovskite",
-        "species": [
+        "endmembers": [
             "aperov",
             "perov",
             "fperov"
@@ -35,7 +35,7 @@
     },
     {
         "name": "spinel",
-        "species": [
+        "endmembers": [
             "sp",
             "herc"
         ],

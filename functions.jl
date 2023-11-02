@@ -21,14 +21,14 @@ end
 
 struct ModelJSON
     name::String
-    species::Vector{String}
+    endmembers::Vector{String}
     margules::Dict{String, Float64}
     sites::Int64
 end
 
 struct Model
     name::String
-    species::DataFrame
+    endmembers::DataFrame
     margules::Dict{String, Float64}
     sites::Int64
 end
@@ -44,8 +44,8 @@ function read_models(fname::String, data::DataFrame, model_names::Vector{String}
     for model in read_models
         aux_data = DataFrame()
         if model.name in model_names
-            for i in 1:length(model.species)
-                p = findfirst(x -> x == model.species[i], data.id)
+            for i in 1:length(model.endmembers)
+                p = findfirst(x -> x == model.endmembers[i], data.id)
                 push!(aux_data, data[p, :])
             end
             push!(models, Model(model.name, aux_data, model.margules, model.sites))
@@ -325,60 +325,30 @@ function calc_gibbs(phase::DataFrameRow{DataFrame, DataFrames.Index}, p::Float64
     return G
 end
 
-function calc_activity(phase::DataFrameRow{DataFrame, DataFrames.Index}, index::Int64, model::Model, species_fractions::Vector{Float64})
+function calc_activity(phase::DataFrameRow{DataFrame, DataFrames.Index}, index::Int64, model::Model, endmembers_fractions::Vector{Float64})
     # initialization
     act = 0.0
-    n_species = size(model.species)[1]
+    n_endmembers = size(model.endmembers)[1]
     n_sites = model.sites
-    n_comps = length(model.species.cmp[1])
-    # ["CAO", "AL2O3", "FEO", "MGO", "NA2O"]
-    # sijk = [[[0.0, 0.5, 0.0, 3.0, 0.0], [0.0, 3.5, 0.0, 1.0, 0.0]], # species sp
-            # [[0.0, 0.5, 3.0, 0.0, 0.0], [0.0, 3.5, 1.0, 0.0, 0.0]]] # species herc
-    # sijk = [[[0.0, 1.0, 0.0, 3.0, 0.0], [0.0, 7.0, 0.0, 1.0, 0.0]], # species sp
-    #         [[0.0, 1.0, 3.0, 0.0, 0.0], [0.0, 7.0, 1.0, 0.0, 0.0]]] # species herc
-    sijk = [[[0.0, 1.0, 0.0, 3.0, 0.0], [0.0, 7.0, 0.0, 1.0, 0.0]], # species sp
-            [[0.0, 1.0, 3.0, 0.0, 0.0], [0.0, 7.0, 1.0, 0.0, 0.0]]] # species herc
-    # sijk = [[[0.0, 1.0, 0.0, 3.0, 0.0], [0.0, 7.0, 0.0, 1.0, 0.0]], # species sp
-            # [[0.0, 1.0, 3.0, 0.0, 0.0], [0.0, 7.0, 1.0, 0.0, 0.0]]] # species herc
-    # sijk = [[4, 0, 8, 16], [0, 4, 8, 16]]
-    # sijk .*= (0.5)
-    # aux = [[[0.0, 3.0/4.0, 0.0, 1.0/4.0, 0.0], [0.0, 1.0/8.0, 0.0, 7.0/8.0, 0.0]],
-    #        [[0.0, 3.0/4.0, 1.0/4.0, 0.0, 0.0], [0.0, 1.0/8.0, 7.0/8.0, 0.0, 0.0]]] 
-
-    # aux = [[[1.0/8.0, 1.0/4.0],
-    #         [1.0/8.0, 1.0/4.0]],
-    #        [[1.0/8.0, 1.0/4.0],
-    #         [1.0/8.0, 1.0/4.0]]]
-    # aux = [[1.0/8.0, 1.0/4.0],
-    #        [1.0/8.0, 1.0/4.0]]
-           
-    
-    #        species1 species2
-    # site1 |________|________
-    # site2 |        |
-    # println(aux[1][2])
-    # println(index)
-    
+    n_species = length(model.endmembers.cmp[1])
+    # ["SIO2", "CAO", "AL2O3", "FEO", "MGO", "NA2O"]
+    sijk = [[[0.0, 0.0, 0.0, 0.0, 3.0, 0.0], [0.0, 0.0, 0.0, 0.0, 1.0, 0.0]], # endmember sp
+            [[0.0, 0.0, 0.0, 3.0, 0.0, 0.0], [0.0, 0.0, 0.0, 1.0, 0.0, 0.0]]] # endmember herc
 
     for k in 1:n_sites
 
-        # sijk1 = [value for value in values(phase.cmp)]
         sijk1 = sijk[index][k] 
-        # println(sijk1)
-        # sijk1 .*= aux[index][k][]
-        # sijk1 .*= aux[k][index]
-        # sijk1 .*= aux[index][k]
 
         Sik = sum(sijk1)
 
         Nk = 0.0
-        for c in 1:n_comps
+        for c in 1:n_species
             Njk = 0.0
-            for i in 1:n_species
+            for i in 1:n_endmembers
                 sijk2 = sijk[i][k] 
-                # sijk2 = [value for value in values(model.species.cmp[i])] 
+                # sijk2 = [value for value in values(model.endmembers.cmp[i])] 
                 # sijk2 .*= aux[i][k]
-                Njk += sijk2[c] .* species_fractions[i] #.* aux[k]
+                Njk += sijk2[c] .* endmembers_fractions[i] #.* aux[k]
                 # println("i: ", c, ", Njk: ", Njk)
             end
             Nk += Njk
@@ -387,13 +357,13 @@ function calc_activity(phase::DataFrameRow{DataFrame, DataFrames.Index}, index::
         a1 = Sik * log(Nk)
 
         a2 = 0.0
-        for c in 1:n_comps
+        for c in 1:n_species
             Njk = 0.0
-            for i in 1:n_species
+            for i in 1:n_endmembers
                 sijk2 = sijk[i][k] 
-                # sijk2 = [value for value in values(model.species.cmp[i])] 
+                # sijk2 = [value for value in values(model.endmembers.cmp[i])] 
                 # sijk2 .*= aux[i][k]
-                Njk += sijk2[c] .* species_fractions[i] #.* aux[k]
+                Njk += sijk2[c] .* endmembers_fractions[i] #.* aux[k]
             end
             a2 += (Njk != 0) ? sijk1[c] * log(Njk) : 0.0
         end
@@ -410,28 +380,28 @@ function eye(i::Int64, j::Int64)
     return i == j ? 1.0 : 0.0
 end
 
-function calc_excess(i::Int64, phase::DataFrameRow{DataFrame, DataFrames.Index}, model::Model, species_fractions::Vector{Float64})
+function calc_excess(i::Int64, phase::DataFrameRow{DataFrame, DataFrames.Index}, model::Model, endmembers_fractions::Vector{Float64})
     
     excess = 0.0
-    n_species = size(model.species)[1]
+    n_endmembers = size(model.endmembers)[1]
     W = [value for value in values(model.margules)]
     # println(model.margules)
 
     # sum_v = 0.0
-    # for i in 1:n_species
-    #     sum_v += species_fractions[i] * v[i]
+    # for i in 1:n_endmembers
+    #     sum_v += endmembers_fractions[i] * v[i]
     # end
 
-    # for i in 1:n_species
-    #     mat_phi[i] = (species_fractions[i] * v[i]) / sum_v
+    # for i in 1:n_endmembers
+    #     mat_phi[i] = (endmembers_fractions[i] * v[i]) / sum_v
     # end
 
-    # for i in 1:n_species
+    # for i in 1:n_endmembers
     excess = 0.0
     it = 1
-    for j in 1:n_species-1
-        for k in j+1:n_species
-            excess += (eye(i,j) - species_fractions[j]) * (eye(i,k) - species_fractions[k]) * W[it]
+    for j in 1:n_endmembers-1
+        for k in j+1:n_endmembers
+            excess += (eye(i,j) - endmembers_fractions[j]) * (eye(i,k) - endmembers_fractions[k]) * W[it]
             # excess -= (eye(i,j) - mat_phi[j]) * (eye(i,k) - mat_phi[k]) * (W[it] * 2.0 * v[i] / (v[j] + v[k]))
             it += 1
         end
@@ -441,7 +411,7 @@ function calc_excess(i::Int64, phase::DataFrameRow{DataFrame, DataFrames.Index},
     return excess
 end
 
-function gcalc(pressure::Float64, temperature::Float64, models::Vector{Model}, species_fractions::Vector{Vector{Float64}})
+function gcalc(pressure::Float64, temperature::Float64, models::Vector{Model}, endmembers_fractions::Vector{Vector{Float64}})
     
     μ = Vector{Float64}()
 
@@ -450,18 +420,18 @@ function gcalc(pressure::Float64, temperature::Float64, models::Vector{Model}, s
         ai = Vector{Float64}()    
         xi = Vector{Float64}()
         μi = Vector{Float64}()
-        n_species = size(model.species)[1]
-        for i in 1:n_species
-            phase = model.species[i, :]
-            title = " " * string(species_fractions[m][i] * 100.0) * " % of `" * phase.id * "` [" * phase.fml * "] "
+        n_endmembers = size(model.endmembers)[1]
+        for i in 1:n_endmembers
+            phase = model.endmembers[i, :]
+            title = " " * string(endmembers_fractions[m][i] * 100.0) * " % of `" * phase.id * "` [" * phase.fml * "] "
             message(title);
             g = calc_gibbs(phase, pressure, temperature)
             message("gibbs", [g])
             push!(gi, g)
-            a = R * temperature * calc_activity(phase, i, model, species_fractions[m]) 
+            a = R * temperature * calc_activity(phase, i, model, endmembers_fractions[m]) 
             message("activity", [a])
             push!(ai, a)
-            e = calc_excess(i, phase, model, species_fractions[m])
+            e = calc_excess(i, phase, model, endmembers_fractions[m])
             message("excess", [e])
             push!(xi, e)
             message("μi", [g - a - e])
@@ -469,7 +439,7 @@ function gcalc(pressure::Float64, temperature::Float64, models::Vector{Model}, s
             
         end
         
-        push!(μ, sum(μi .* species_fractions[m]))
+        push!(μ, sum(μi .* endmembers_fractions[m]))
         message("line")
         message("μ", [sum(μ)])
         message("line")        
@@ -485,8 +455,8 @@ function span_gcalc(n_span::Int64, pressure::Float64, temperature::Float64, mode
 
     for a in 0:n_span
         v = a / n_span
-        species_fractions = [[v, 1-v]]
-        push!(g, sum(gcalc(pressure, temperature, models, species_fractions)))
+        endmembers_fractions = [[v, 1-v]]
+        push!(g, sum(gcalc(pressure, temperature, models, endmembers_fractions)))
     end
 
     fig = Figure()
