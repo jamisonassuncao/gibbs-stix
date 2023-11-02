@@ -18,8 +18,8 @@ function main()
     # species_fractions = [[0.3, 0.3, 0.4]] # peroviskite
 
     model_names = ["spinel"]
-    # species_fractions = [[1.0, 0.0]] # 100% spinel
-    species_fractions = [[0.5, 0.5]] # spinel
+    species_fractions = [[1.0, 0.0]] # 100% spinel
+    # species_fractions = [[0.5, 0.5]] # spinel
     
     # read datasets
     data = read_data("data/stx11_data.json")
