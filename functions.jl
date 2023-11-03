@@ -74,17 +74,17 @@ function message(str::String, arg::Vector{Float64}=[0.0])
     elseif str == "gibbs"
         @printf(" * gibbs: \t%15.2f\n", arg[1])
     elseif str == "activity"
-        @printf(" * R*T*log(a): \t%15.2f\n", arg[1])
+        @printf(" * R*T*config: \t%15.2f\n", arg[1])
     elseif str == "excess"
         @printf(" * excess: \t%15.2f\n", arg[1])
     elseif str == "μi"
         @printf(" * μ: \t\t%15.2f\n", arg[1])
     elseif str == "μ"
         μp = -8623709.0
-        @printf(" * μp:\t\t%15.2f\n", μp)
+        # @printf(" * μp:\t\t%15.2f\n", μp)
         @printf(" * μ: \t\t%15.2f\n", arg[1])
-        @printf(" * diff: \t%15.2f\n", μp-arg[1])
-        @printf(" * diff(%%): \t%15.2e\n", 1.0-(arg[1]/μp))
+        # @printf(" * diff: \t%15.2f\n", μp-arg[1])
+        # @printf(" * diff(%%): \t%15.2e\n", 1.0-(arg[1]/μp))
     else
         println(repeat("=", dist), str, repeat("=", max_dist - dist - length(str)))
     end
@@ -371,8 +371,8 @@ function calc_activity(phase::DataFrameRow{DataFrame, DataFrames.Index}, index::
         act += (a1 - a2)
     end
     # println(sijk)
-    @printf(" * log(a): \t%15.2f\n", act)
-    @printf(" * a: \t%15.2f\n", exp(act))
+    # @printf(" * log(a): \t%15.2f\n", act)
+    # @printf(" * a: \t%15.2f\n", exp(act))
     return act
 end
 
