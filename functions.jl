@@ -1,37 +1,8 @@
 using DataFrames, JSON3, Printf
+include("types.jl")
 
 global R = 8.31446261815324
-global COMP = ["CAO", "AL2O3", "FEO", "MGO", "NA2O"]
-
-struct Phase
-    id::String                  # Name id
-    fml::String                 # Chemical formula
-    cmp::Dict{String, Float64}  # Chemical components (SiO2, MgO, FeO, CaO, Al2O3, Na2O)
-    F0::Float64                 # Helmoltz energy (F0, J/mol)
-    n::Float64                  # negative of the number of atoms per formula unit (-n)
-    V0::Float64                 # negative of the volume (-V0)
-    K0::Float64                 # c1: isothermal bulk modulus (K0, bar)
-    Kp::Float64                 # c2: pressure derivative of the isothermal bulk modulus (K')
-    Θ0::Float64                 # c3: Debye Temperature (Θ0, K)
-    γ0::Float64                 # c4: Gruneisen thermal parameter (γ0)
-    q0::Float64                 # c5: Mie-Gruneisen exponent (q0)
-    ηS0::Float64                # c6: Shear strain derivative of the tensorial Gruneisen parameter (ηS0)
-    cme::Float64                # c7: Configurational (and magnetic) entropy (J/mol/K)
-end
-
-struct ModelJSON
-    name::String
-    endmembers::Vector{String}
-    margules::Dict{String, Float64}
-    sites::Int64
-end
-
-struct Model
-    name::String
-    endmembers::DataFrame
-    margules::Dict{String, Float64}
-    sites::Int64
-end
+global COMP = ["SIO2", "CAO", "AL2O3", "FEO", "MGO", "NA2O"]
 
 function read_data(fname::String)
     return JSON3.read(fname, Vector{Phase}) |> DataFrame
@@ -73,7 +44,7 @@ function message(str::String, arg::Vector{Float64}=[0.0])
         @printf(", T: %.2f K\n", arg[2])
     elseif str == "gibbs"
         @printf(" * gibbs: \t%15.2f\n", arg[1])
-    elseif str == "activity"
+    elseif str == "config"
         @printf(" * R*T*config: \t%15.2f\n", arg[1])
     elseif str == "excess"
         @printf(" * excess: \t%15.2f\n", arg[1])
@@ -325,7 +296,7 @@ function calc_gibbs(phase::DataFrameRow{DataFrame, DataFrames.Index}, p::Float64
     return G
 end
 
-function calc_activity(phase::DataFrameRow{DataFrame, DataFrames.Index}, index::Int64, model::Model, endmembers_fractions::Vector{Float64})
+function calc_config(phase::DataFrameRow{DataFrame, DataFrames.Index}, index::Int64, model::Model, endmembers_fractions::Vector{Float64})
     # initialization
     act = 0.0
     n_endmembers = size(model.endmembers)[1]
@@ -428,8 +399,8 @@ function gcalc(pressure::Float64, temperature::Float64, models::Vector{Model}, e
             g = calc_gibbs(phase, pressure, temperature)
             message("gibbs", [g])
             push!(gi, g)
-            a = R * temperature * calc_activity(phase, i, model, endmembers_fractions[m]) 
-            message("activity", [a])
+            a = R * temperature * calc_config(phase, i, model, endmembers_fractions[m]) 
+            message("config", [a])
             push!(ai, a)
             e = calc_excess(i, phase, model, endmembers_fractions[m])
             message("excess", [e])

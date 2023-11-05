@@ -18,18 +18,19 @@ function main()
     # species_fractions = [[0.3, 0.3, 0.4]] # peroviskite
 
     model_names = ["spinel"]
-    species_fractions = [[1.0, 0.0]] # 100% spinel
-    # species_fractions = [[0.5, 0.5]] # spinel
+    # species_fractions = [[1.0, 0.0]] # 100% spinel
+    species_fractions = [[0.5, 0.5]] # spinel
     
     # read datasets
     data = read_data("data/stx11_data.json")
     models = read_models("data/stx11_solution.json", data, model_names)
+    println(models)
 
     # calculate gibbs free energy
     gibbs = gcalc(pressure, temperature, models, species_fractions) 
     # gibbs = span_gcalc(10, pressure, temperature, models)
 
-    return gibbs
+    return models
 end
 
 # @code_warntype main()
