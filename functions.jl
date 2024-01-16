@@ -304,6 +304,7 @@ function calc_config(phase::DataFrameRow{DataFrame, DataFrames.Index}, index::In
     n_sites = model.sites
     n_species = size(model.endmembers.sites_cmp[1][1])[1]
     sijk = model.endmembers.sites_cmp
+
     for k in 1:n_sites
 
         sijk1 = sijk[index][k] 
@@ -319,7 +320,8 @@ function calc_config(phase::DataFrameRow{DataFrame, DataFrames.Index}, index::In
             end
             Nk += Njk
         end
-        a1 = Sik * log(Nk)
+        a1 = (Nk != 0) ? Sik * log(Nk) : 0.0                                    # Should I do this if Nk == 0?
+        # a1 = Sik * log(Nk)
 
         a2 = 0.0
         for c in 1:n_species
