@@ -15,8 +15,8 @@ function main()
     # model_names = ["plagioclase"] # zeroed 2nd site
     # species_fractions = [[0.5, 0.5]] # anorthite albite
 
-    model_names = ["spinel"]
-    species_fractions = [[0.5, 0.5]] # spinel hercynite
+    # model_names = ["spinel"]
+    # species_fractions = [[0.5, 0.5]] # spinel hercynite
 
     # model_names = ["olivine"]
     # species_fractions = [[0.5, 0.5]] # fosterite fayalite
@@ -39,6 +39,12 @@ function main()
     # model_names = ["seifertite"]
     # species_fractions = [[1.0]] # seifertite
 
+    # model_names = ["kyanite"]
+    # species_fractions = [[1.0]] # kyanite
+
+    # model_names = ["nepheline"]
+    # species_fractions = [[1.0]] # nepheline
+
     ############################################################################
     # failed benchmark
     ############################################################################
@@ -48,6 +54,18 @@ function main()
 
     # model_names = ["stishovite"]
     # species_fractions = [[1.0]] # stishovite
+
+    # model_names = ["perovskite"]
+    # species_fractions = [[0.3, 0.3, 0.4]] # mg-peroviskite, fe-peroviskite, al-peroviskite
+
+    # model_names = ["post-perovskite"]
+    # species_fractions = [[0.3, 0.3, 0.4]] # mg-post-peroviskite fe-post-peroviskite al-post-peroviskite
+
+    # model_names = ["magnesio-wustite"]
+    # species_fractions = [[0.5, 0.5]] # periclase wustite
+
+    # model_names = ["ca-ferrite"]
+    # species_fractions = [[0.3, 0.3, 0.4]] # mg-ca-ferrite fe-ca-ferrite na-ca-ferrite
 
     ############################################################################
     # not benchmarked
@@ -65,53 +83,10 @@ function main()
     # model_names = ["garnet"]
     # species_fractions = [[0.2, 0.2, 0.2, 0.2, 0.2]] # pyrope almandine grossular mg-majorite jd-majorite 
 
-    # model_names = ["perovskite"]
-    # species_fractions = [[0.3, 0.3, 0.4]] # mg-peroviskite, fe-peroviskite, fperov
+   ############################################################################
+    # run
+    ############################################################################
 
-    
-
-
-
-
-
-
-
-
-    # model_names = ["C2/c pyroxene"]
-    # species_fractions = [[0.5, 0.5]] # C2/c, FC2/c
-
-    # model_names = ["magnesio-wuestite"]
-    # species_fractions = [[0.5, 0.5]] # per wus
-
-    
-
-    
-
-    # model_names = ["perovskite"]
-    # species_fractions = [[0.3, 0.3, 0.4]] # peroviskite
-
-    
-
-    
-
-    
-
-
-
-
-
-    # model_names = ["clinopyroxene"]
-    # species_fractions = [[0.2, 0.2, 0.2, 0.2, 0.2]] # jadeite, diopside, hedenbergite, clinoestantite, ca-tschermaks
-
-    # model_names = ["akimotoite"]
-    # species_fractions = [[0.3, 0.3, 0.4]] # corundum, mg-akimotoite, fe-akimotoite
-
-    # model_names = ["garnet"]
-    # species_fractions = [[0.2, 0.2, 0.2, 0.2, 0.2]] # garnet, almandine, mg-majorite, pyrope, jd-majorite
-
-    # model_names = ["post-peroviskite"]
-    # species_fractions = [[0.3, 0.3, 0.4]] # post-peroviskite, fe-post-peroviskite
-    
     # read datasets
     data = read_data("data/stx11_data.json")
     models = read_models("data/stx11_solution.json", data, model_names)

@@ -234,6 +234,85 @@
             "mg-perovskite,al-perovskite": 1.160e+05,
             "fe-perovskite,al-perovskite": 0.000e+00
         },
+        "van_laar": [1.0, 1.0, 0.39]
+    },
+    {
+        "name": "post-perovskite",
+        "sites": 2,
+        "endmembers": {
+            "mg-post-perovskite": [[0.0, 0.0, 0.0, 0.0, 1.0, 0.0], [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]],
+            "fe-post-perovskite": [[0.0, 0.0, 0.0, 1.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]],
+            "al-post-perovskite": [[0.0, 0.0, 0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]]
+        },
+        "margules": {
+            "mg-post-perovskite,fe-post-perovskite": 0.000e+00,
+            "mg-post-perovskite,al-post-perovskite": 6.000e+04,
+            "fe-post-perovskite,al-post-perovskite": 0.000e+00
+        },
         "van_laar": [1.0, 1.0, 1.0]
+    },
+    {
+        "name": "magnesio-wustite",
+        "sites": 1,
+        "endmembers": {
+            "periclase": [[0.0, 0.0, 0.0, 0.0, 1.0, 0.0]],
+            "wustite": [[0.0, 0.0, 0.0, 1.0, 0.0, 0.0]]
+        },
+        "margules": {
+            "periclase,wustite": 1.300e+04
+        },
+        "van_laar": [1.0, 1.0]
+    },
+    {
+        "name": "magneto-wustite",
+        "sites": 2,
+        "endmembers": {
+            "mg-ca-ferrite": [[0.0, 0.0, 0.0, 0.0, 1.0, 0.0], [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]],
+            "fe-ca-ferrite": [[0.0, 0.0, 0.0, 1.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]],
+            "na-ca-ferrite": [[0.0, 0.0, 0.0, 0.0, 0.0, 1.0], [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]]
+        },
+        "margules": {
+            "mg-ca-ferrite,fe-ca-ferrite": 0.000e+00,
+            "mg-ca-ferrite,na-ca-ferrite": 0.000e+00,
+            "fe-ca-ferrite,na-ca-ferrite": 0.000e+00
+        },
+        "van_laar": [1.0, 1.0, 1.0]
+    },
+    {
+        "name": "ca-ferrite",
+        "sites": 2,
+        "endmembers": {
+            "mg-ca-ferrite": [[0.0, 0.0, 0.0, 0.0, 1.0, 0.0], [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]],
+            "fe-ca-ferrite": [[0.0, 0.0, 0.0, 1.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]],
+            "na-ca-ferrite": [[0.0, 0.0, 0.0, 0.0, 0.0, 1.0], [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]]
+        },
+        "margules": {
+            "mg-ca-ferrite,fe-ca-ferrite": 0.000e+00,
+            "mg-ca-ferrite,na-ca-ferrite": 0.000e+00,
+            "fe-ca-ferrite,na-ca-ferrite": 0.000e+00
+        },
+        "van_laar": [1.0, 1.0, 1.0]
+    },
+    {
+        "name": "kyanite",
+        "sites": 0,
+        "endmembers": {
+            "kyanite": [[0.0, 0.0, 0.0, 0.0, 0.0, 0.0]]
+        },
+        "margules": {
+            "kyanite,kyanite": 0.000e+00
+        },
+        "van_laar": [1.0]
+    },
+    {
+        "name": "nepheline",
+        "sites": 0,
+        "endmembers": {
+            "nepheline": [[0.0, 0.0, 0.0, 0.0, 0.0, 0.0]]
+        },
+        "margules": {
+            "nepheline,nepheline": 0.000e+00
+        },
+        "van_laar": [1.0]
     }
 ]
