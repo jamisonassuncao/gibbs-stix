@@ -46,11 +46,18 @@ function main()
     # species_fractions = [[1.0]] # nepheline
 
     ############################################################################
+    # benchmarked with different criteria for sites
+    ############################################################################
+
+    # model_names = ["orthopyroxene"]
+    # species_fractions = [[0.25, 0.25, 0.25, 0.25]] # enstatite ferrosilite mg-tschermak ortho-diopside
+
+    ############################################################################
     # failed benchmark
     ############################################################################
 
-    # model_names = ["quartz"]
-    # species_fractions = [[1.0]] # quartz
+    model_names = ["quartz"]
+    species_fractions = [[1.0]] # quartz
 
     # model_names = ["stishovite"]
     # species_fractions = [[1.0]] # stishovite
@@ -70,9 +77,6 @@ function main()
     ############################################################################
     # not benchmarked
     ############################################################################
-
-    # model_names = ["orthopyroxene"] # energy_interaction @ burnman
-    # species_fractions = [[0.25, 0.25, 0.25, 0.25]] # enstatite ferrosilite mg-tschermak ortho-diopside
 
     # model_names = ["clinopyroxene"] # energy_interaction @ burnman + van laar + zeroed 3rd site
     # species_fractions = [[0.2, 0.2, 0.2, 0.2, 0.2]] # diopside hedenbergite clinoestantite ca-tschermak jadeite
