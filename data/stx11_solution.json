@@ -1,6 +1,6 @@
 [
     {
-        "name": "reference",
+        "name": "Si,Ca,Al,Fe,Mg,Na",
         "sites": 1,
         "endmembers": {
             "A": [[14.0, 20.0, 13.0, 26.0, 12.0, 11.0]], 
@@ -112,7 +112,7 @@
             "clinoenstatite,jadeite": 0.000e+00,
             "ca-tschermak,jadeite": 1.000e+04
         },
-        "van_laar": [1.0, 1.0, 1.0, 1.0, 1.0]
+        "van_laar": [1.0, 1.0, 1.0, 3.5, 1.0]
     },
     {
         "name": "hp-clinopyroxene",

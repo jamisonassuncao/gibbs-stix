@@ -3,28 +3,28 @@ from formula import *
 # List of elements to count
 elems = ["Si", "Ca", "Al", "Fe", "Mg", "Na"]
 # Flags to multiply the <elems> (effectively removing some elements that should not be counted)
-flags = [0.00, 1.00, 0.00, 1.00, 1.00, 1.00] 
-# flags = [1.00, 1.00, 1.00, 1.00, 1.00, 1.00] 
+# flags = [0.00, 1.00, 0.00, 1.00, 1.00, 1.00] 
+flags = [1.00, 1.00, 1.00, 1.00, 1.00, 1.00] 
 
 # ################################################################################
 
-# Model name
-model_name = "plagioclase"
+# # Model name
+# model_name = "plagioclase"
 
-# Chemical formulas dictionary
-formulas = {
-    "anorthite":"(Ca)(Al2)Si2O8",
-    "albite":"(Na)(Al Si3)O8",
-}
+# # Chemical formulas dictionary
+# formulas = {
+#     "anorthite":"(Ca)(Al2)Si2O8",
+#     "albite":"(Na)(Al Si3)O8",
+# }
 
-# Specify the endmembers
-endmemers = list(formulas.keys())
+# # Specify the endmembers
+# endmemers = list(formulas.keys())
 
-# Initialize the margules parameters
-margules = np.zeros((len(endmemers), len(endmemers)))
+# # Initialize the margules parameters
+# margules = np.zeros((len(endmemers), len(endmemers)))
 
-# Change the margules parameters individualy
-change_margules(margules, endmemers, "anorthite", "albite", 26.0e3)
+# # Change the margules parameters individualy
+# change_margules(margules, endmemers, "anorthite", "albite", 26.0e3)
 
 ################################################################################
 
@@ -122,28 +122,28 @@ change_margules(margules, endmemers, "anorthite", "albite", 26.0e3)
 
 ################################################################################
 
-# # Model name
-# model_name = "garnet"
+# Model name
+model_name = "garnet"
 
-# # Chemical formulas dictionary
-# formulas = {
-#     "pyrope": "(Mg3)(Al)(Al)Si3O12",
-#     "almandine": "(Fe3)(Al)(Al)Si3O12",
-#     "grossular": "(Ca3)(Al)(Al)Si3O12",
-#     "mg-majorite": "(Mg3)(Mg)(Si)Si3O12",
-#     "jd-majorite": "(Na2 Al)(Al)(Si)Si3O12",
-# }
+# Chemical formulas dictionary
+formulas = {
+    "pyrope": "(Mg3)(Al)(Al)Si3O12",
+    "almandine": "(Fe3)(Al)(Al)Si3O12",
+    "grossular": "(Ca3)(Al)(Al)Si3O12",
+    "mg-majorite": "(Mg3)(Mg)(Si)Si3O12",
+    "jd-majorite": "(Na2 Al)(Al)(Si)Si3O12",
+}
 
-# # Specify the endmembers
-# endmemers = list(formulas.keys())
+# Specify the endmembers
+endmemers = list(formulas.keys())
 
-# # Initialize the margules parameters
-# margules = np.zeros((len(endmemers), len(endmemers)))
+# Initialize the margules parameters
+margules = np.zeros((len(endmemers), len(endmemers)))
 
-# # Change the margules parameters individualy
-# change_margules(margules, endmemers, "grossular", "mg-majorite", 58e3)
-# change_margules(margules, endmemers, "grossular", "pyrope", 30e3)
-# change_margules(margules, endmemers, "pyrope", "mg-majorite", 21.3e3)
+# Change the margules parameters individualy
+change_margules(margules, endmemers, "grossular", "mg-majorite", 58e3)
+change_margules(margules, endmemers, "grossular", "pyrope", 30e3)
+change_margules(margules, endmemers, "pyrope", "mg-majorite", 21.3e3)
 
 ################################################################################
 

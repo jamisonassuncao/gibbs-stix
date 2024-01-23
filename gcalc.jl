@@ -12,11 +12,8 @@ function main()
     # benchmarked
     ############################################################################
 
-    # model_names = ["plagioclase"] # zeroed 2nd site
-    # species_fractions = [[0.5, 0.5]] # anorthite albite
-
-    # model_names = ["spinel"]
-    # species_fractions = [[0.5, 0.5]] # spinel hercynite
+    model_names = ["spinel"]
+    species_fractions = [[0.5, 0.5]] # spinel hercynite
 
     # model_names = ["olivine"]
     # species_fractions = [[0.5, 0.5]] # fosterite fayalite
@@ -56,10 +53,15 @@ function main()
     # failed benchmark
     ############################################################################
 
-    model_names = ["quartz"]
-    species_fractions = [[1.0]] # quartz
+    # For plagioclase, the difference between my code and burnman is the value 
+    # of R*T*config, this might have something to do with the failed benchmark.
+    # model_names = ["plagioclase"] 
+    # species_fractions = [[0.5, 0.5]] # anorthite albite
 
-    # model_names = ["stishovite"]
+    # model_names = ["quartz"]
+    # species_fractions = [[1.0]] # quartz
+
+    # model_names = ["stishovite"] # diff. < 54
     # species_fractions = [[1.0]] # stishovite
 
     # model_names = ["perovskite"]
@@ -74,17 +76,13 @@ function main()
     # model_names = ["ca-ferrite"]
     # species_fractions = [[0.3, 0.3, 0.4]] # mg-ca-ferrite fe-ca-ferrite na-ca-ferrite
 
-    ############################################################################
-    # not benchmarked
-    ############################################################################
-
-    # model_names = ["clinopyroxene"] # energy_interaction @ burnman + van laar + zeroed 3rd site
+    # model_names = ["clinopyroxene"] # energy_interaction @ burnman + van laar + zeroed 3rd site + asymmetric
     # species_fractions = [[0.2, 0.2, 0.2, 0.2, 0.2]] # diopside hedenbergite clinoestantite ca-tschermak jadeite
 
     # model_names = ["akimotoite"]
     # species_fractions = [[0.3, 0.3, 0.4]] # mg-akimotoite fe-akimotoite corundum
 
-    # model_names = ["garnet"]
+    # model_names = ["garnet"] # asymmetric
     # species_fractions = [[0.2, 0.2, 0.2, 0.2, 0.2]] # pyrope almandine grossular mg-majorite jd-majorite 
 
    ############################################################################
