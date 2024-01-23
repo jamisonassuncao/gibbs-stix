@@ -351,6 +351,7 @@ function calc_excess(i::Int64, model::Model, endmembers_fractions::Vector{Float6
     asymmetric = false
     if any(value -> value != 1, v)
         asymmetric = true
+        # print("asymmetric")
     end
 
     if asymmetric
@@ -370,7 +371,7 @@ function calc_excess(i::Int64, model::Model, endmembers_fractions::Vector{Float6
     for j in 1:n_endmembers-1
         for k in j+1:n_endmembers
             if asymmetric
-                excess -= (eye(i,j) - mat_phi[j]) * (eye(i,k) - mat_phi[k]) * (W[it] * 2.0 * v[i] / (v[j] + v[k]))
+                excess += (eye(i,j) - mat_phi[j]) * (eye(i,k) - mat_phi[k]) * (W[it] * 2.0 * v[i] / (v[j] + v[k]))
             else
                 excess += (eye(i,j) - endmembers_fractions[j]) * (eye(i,k) - endmembers_fractions[k]) * W[it]
             end
