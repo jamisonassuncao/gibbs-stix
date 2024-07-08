@@ -288,6 +288,7 @@ function calc_gibbs(phase::DataFrameRow{DataFrame, DataFrames.Index}, p::Float64
         end
 
         v -= dv
+        
 
         if (itic > iopt21 || abs(f1) > 1e40)
             # allow bad result
