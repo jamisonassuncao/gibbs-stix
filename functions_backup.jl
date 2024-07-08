@@ -2,8 +2,7 @@ using DataFrames, JSON3, Printf
 include("types.jl")
 
 global R = 8.31446261815324
-# global COMP = ["SIO2", "CAO", "AL2O3", "FEO", "MGO", "NA2O"]
-global COMP = ["Si", "Ca", "Al", "Fe", "Mg", "Na"]
+global COMP = ["SIO2", "CAO", "AL2O3", "FEO", "MGO", "NA2O"]
 
 function read_data(fname::String)
     return JSON3.read(fname, Vector{Phase}) |> DataFrame
@@ -13,63 +12,25 @@ function restructure(s::DataFrame, v::Vector{Vector{Float64}})
     return (id = s.id[1], fml = s.fml[1], F0 = s.F0[1], n = s.n[1], V0 = s.V0[1], K0 = s.K0[1], Kp = s.Kp[1], Θ0 = s.Θ0[1], γ0 = s.γ0[1], q0 = s.q0[1], ηS0 = s.ηS0[1], cme = s.cme[1], sites_cmp = v)
 end
 
-function read_models(fname::String, data::DataFrame, model_names::Vector{String}, endmember_fractions::Vector{Dict{String, Float64}})
+function read_models(fname::String, data::DataFrame, model_names::Vector{String})
     read_models = JSON3.read(fname, Vector{ModelJSON})                          # read the json
     models = Vector{Model}()                                                    # create a vector of Models
     
     for model in read_models                                                    # for each model in read_models
         aux_data = DataFrame()                                                  # create an empty dataframe
         aux_model = DataFrame()
-
-        if model.name in model_names
-            
-            for (cont, em) in enumerate(model.endmembers)                                          # put each endmember in a Dict to be added to Model
+        if model.name in model_names                                            
+            for em in model.endmembers
                 p = findfirst(x -> x == em[1], data.id)
-                # println(em[1])
-                # println("data: ", data[p, :])
                 aux_model = restructure(DataFrame(data[p, :]), em[2])
-                # println(endmember_fractions[cont][em[1]])
-                # insertcols!(DataFrame(aux_model), :molar_fraction => endmember_fractions[cont][em[1]])
-                # println(data[p, :])
-                insertcols!(aux_model, p, :molar_fraction => endmember_fractions[cont][em[1]])
-                println(aux_model)
-
-                # aux_model[!, :new_column] = endmember_fractions[cont][em[1]]
-                # println(aux_model)
                 push!(aux_data, aux_model)
             end
-
-            aux_data, n_sites, site_multiplicities = set_multiplicity(aux_data)
-            push!(models, Model(model.name, n_sites, site_multiplicities, aux_data, model.margules, model.van_laar))
-
+            push!(models, Model(model.name, model.sites, aux_data, model.margules, model.van_laar))
         else
             continue
         end
     end
     return models
-end
-
-function set_multiplicity(data::DataFrame)
-
-    n_endmembers = size(data)[1]                                                # get the number of endmembers
-    n_sites = size(data.sites_cmp[1])[1]                                        # get the number of sites
-    aux_max = zeros(n_endmembers, n_sites)                                      # matrix to store maximum values
-    multiplicity = ones(n_sites)                                                # vactor to store multiplicities
-
-    for j in 1:n_sites
-        for i in 1:n_endmembers
-            aux_max[i, j] = maximum(data.sites_cmp[i][j])
-        end
-    end
-
-    for j in 1:n_sites
-        for i in 1:n_endmembers
-            multiplicity[j] = maximum(aux_max[:, j])
-            data.sites_cmp[i][j] ./= multiplicity[j]
-        end
-    end
-
-    return data, n_sites, multiplicity
 end
 
 function message(str::String, arg::Vector{Float64}=[0.0])
@@ -102,15 +63,15 @@ function message(str::String, arg::Vector{Float64}=[0.0])
     end
 end
 
-# function make_comp(comp::Dict{String, Float64})
-#     sc = size(COMP)
-#     my_comp = zeros(sc)
-#     for key in keys(comp)
-#         p = findfirst(x -> x == key, COMP)
-#         my_comp[p] = comp[key]
-#     end
-#     return my_comp
-# end
+function make_comp(comp::Dict{String, Float64})
+    sc = size(COMP)
+    my_comp = zeros(sc)
+    for key in keys(comp)
+        p = findfirst(x -> x == key, COMP)
+        my_comp[p] = comp[key]
+    end
+    return my_comp
+end
 
 """
     plg(t)
@@ -336,49 +297,44 @@ function calc_gibbs(phase::DataFrameRow{DataFrame, DataFrames.Index}, p::Float64
     return G
 end
 
-function no_nan_sum(vec::Vector{Float64})
-    return sum([x for x in vec if !isnan(x)])
-end
-
 function calc_config(phase::DataFrameRow{DataFrame, DataFrames.Index}, index::Int64, model::Model, endmember_fractions::Vector{Float64})
     # initialization
-    config::Vector{Float64} = []
-    n_endmembers            = size(model.endmembers)[1]
-    total_molar_fraction    = sum(endmember_fractions)
-    n_sites                 = model.sites
-    n_species               = size(model.endmembers.sites_cmp[1][1])[1]
+    act = 0.0
+    n_endmembers = size(model.endmembers)[1]
+    n_sites = model.sites
+    n_species = size(model.endmembers.sites_cmp[1][1])[1]
+    sijk = model.endmembers.sites_cmp
 
-    for site in 1:n_sites
-        
-        molar_fraction::Vector{Float64} = []
-        aux_config::Vector{Float64}     = []
+    for k in 1:n_sites
 
-        for specie in 1:n_species
-            push!(molar_fraction, 0.0)
-            
-            for endmember in 1:n_endmembers
-                
-                if model.endmembers.sites_cmp[endmember][site][specie] != 0
-                    println(model.endmembers.id[endmember])
-                    println("endmember_fractions: ", endmember_fractions[endmember])
-                    molar_fraction[end] += endmember_fractions[endmember]
-                end                
+        sijk1 = sijk[index][k] 
+
+        Sik = sum(sijk1)
+
+        Nk = 0.0
+        for c in 1:n_species
+            Njk = 0.0
+            for i in 1:n_endmembers
+                sijk2 = sijk[i][k] 
+                Njk += sijk2[c] .* endmember_fractions[i]
             end
-            
-            # println("model.site_multiplicities[site]: ", model.site_multiplicities[site])
-            aux_config = model.site_multiplicities[site] .* molar_fraction .* log.(molar_fraction ./ total_molar_fraction)
-            # println("aux_config: ", aux_config)
-            
+            Nk += Njk
         end
-        println("molar_fraction: ", molar_fraction)
-        # println(aux_config)
-        push!(config, no_nan_sum(aux_config))
-        # println(repeat("-", 80))
-    end
-    
-    # println(sum(config))
+        a1 = (Nk != 0) ? Sik * log(Nk) : 0.0                                    # Should I do this if Nk == 0?
+        # a1 = Sik * log(Nk)
 
-    return 0.0#config
+        a2 = 0.0
+        for c in 1:n_species
+            Njk = 0.0
+            for i in 1:n_endmembers
+                sijk2 = sijk[i][k]
+                Njk += sijk2[c] .* endmember_fractions[i] #.* aux[k]
+            end
+            a2 += (Njk != 0) ? sijk1[c] * log(Njk) : 0.0
+        end
+        act += (a1 - a2)
+    end
+    return act
 end
 
 function eye(i::Int64, j::Int64)
@@ -426,7 +382,7 @@ function calc_excess(i::Int64, model::Model, endmember_fractions::Vector{Float64
     return excess
 end
 
-function gcalc(pressure::Float64, temperature::Float64, models::Vector{Model}, endmember_fractions::Vector{Dict{String, Float64}})
+function gcalc(pressure::Float64, temperature::Float64, models::Vector{Model}, endmember_fractions::Vector{Vector{Float64}})
     
     μ = Vector{Float64}()
     
@@ -435,40 +391,21 @@ function gcalc(pressure::Float64, temperature::Float64, models::Vector{Model}, e
         ai = Vector{Float64}()    
         xi = Vector{Float64}()
         μi = Vector{Float64}()
-        # n_endmembers = size(model.endmembers)[1]
-        # for i in 1:n_endmembers
-        #     phase = model.endmembers[i, :]
-        #     println(phase)
-        #     title = " " * string(endmember_fractions[m][i] * 100.0) * " % of `" * phase.id * "` (" * phase.fml * ") "
-        #     # message(title);
-        #     g = calc_gibbs(phase, pressure, temperature)
-        #     # message("gibbs", [g])
-        #     push!(gi, g)
-        #     println("ef: ", endmember_fractions[m])
-        #     a = R * temperature * calc_config(phase, i, model, endmember_fractions[m]) 
-        #     # message("config", [a])
-        #     push!(ai, a)
-        #     e = calc_excess(i, model, endmember_fractions[m])
-        #     # message("excess", [e])
-        #     push!(xi, e)
-        #     # message("μi", [g - a - e]) # message("μi", [g - (a/3.0) - e])
-        #     push!(μi, (g - a - e)) # push!(μi, (g - (a/3.0) - e))
-        # end
-        for (i, (key, value)) in enumerate(endmember_fractions)
+        n_endmembers = size(model.endmembers)[1]
+        for i in 1:n_endmembers
             phase = model.endmembers[i, :]
-            title = " " * string(endmember_fractions[m][key] * 100.0) * " % of `" * phase.id * "` (" * phase.fml * ") "
-            # message(title);
+            title = " " * string(endmember_fractions[m][i] * 100.0) * " % of `" * phase.id * "` (" * phase.fml * ") "
+            message(title);
             g = calc_gibbs(phase, pressure, temperature)
-            # message("gibbs", [g])
+            message("gibbs", [g])
             push!(gi, g)
-            println("ef: ", endmember_fractions[m])
             a = R * temperature * calc_config(phase, i, model, endmember_fractions[m]) 
-            # message("config", [a])
+            message("config", [a])
             push!(ai, a)
             e = calc_excess(i, model, endmember_fractions[m])
-            # message("excess", [e])
+            message("excess", [e])
             push!(xi, e)
-            # message("μi", [g - a - e]) # message("μi", [g - (a/3.0) - e])
+            message("μi", [g - a - e]) # message("μi", [g - (a/3.0) - e])
             push!(μi, (g - a - e)) # push!(μi, (g - (a/3.0) - e))
         end
         

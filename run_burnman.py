@@ -19,18 +19,18 @@ temperature = 1000.0 # K
 # mineral_a.set_state(pressure, temperature)
 # mineral_b.set_state(pressure, temperature)
 
-# mineral_a = minerals.SLB_2011.spinel()
-# mineral_b = minerals.SLB_2011.hercynite()
-# model = Solution(name = 'Spinel', solution_model = SymmetricRegularSolution(endmembers = [[mineral_a, '[Mg3Al1][Al7Mg1]1O16'], [mineral_b, '[Fe3Al1]1[Al7Fe1]1O16']], energy_interaction=[[5000.0]]))
-# model.set_composition([0.5, 0.5])
-# model.set_state(pressure, temperature)
-# mineral_a.set_state(pressure, temperature)
-# mineral_b.set_state(pressure, temperature)
+mineral_a = minerals.SLB_2011.spinel()
+mineral_b = minerals.SLB_2011.hercynite()
+model = Solution(name = 'Spinel', solution_model = SymmetricRegularSolution(endmembers = [[mineral_a, '[Mg3Al1][Al7Mg1]1O16'], [mineral_b, '[Fe3Al1]1[Al7Fe1]1O16']], energy_interaction=[[5000.0]]))
+model.set_composition([0.5, 0.5])
+model.set_state(pressure, temperature)
+mineral_a.set_state(pressure, temperature)
+mineral_b.set_state(pressure, temperature)
 
 # mineral_a = minerals.SLB_2011.forsterite()
 # mineral_b = minerals.SLB_2011.fayalite()
 # model = Solution(name = 'Olivine', solution_model = SymmetricRegularSolution(endmembers= [[mineral_a,'[Mg2]Si1O4'], [mineral_b, '[Fe2]Si1O4']], energy_interaction=[[7.6e3]]))
-# model.set_composition([0.5, 0.5])
+# model.set_composition([0.7, 0.3])
 # model.set_state(pressure, temperature)
 # mineral_a.set_state(pressure, temperature)
 # mineral_b.set_state(pressure, temperature)
@@ -63,19 +63,19 @@ temperature = 1000.0 # K
 # mineral_c.set_state(pressure, temperature)
 # mineral_d.set_state(pressure, temperature)
 
-mineral_a = minerals.SLB_2011.diopside()
-mineral_b = minerals.SLB_2011.hedenbergite()
-mineral_c = minerals.SLB_2011.clinoenstatite()
-mineral_d = minerals.SLB_2011.ca_tschermaks()
-mineral_e = minerals.SLB_2011.jadeite()
-model = Solution(name= 'Clinopyroxene', solution_model = AsymmetricRegularSolution(endmembers= [[mineral_a, '(Ca)(Mg)(Si2)O6'], [mineral_b, '(Ca)(Fe)(Si2)O6'], [mineral_c, '(Mg)(Mg)(Si2)O6'], [mineral_d, '(Ca)(Al)(Si Al)O6'], [mineral_e, '(Na)(Al)(Si2)O6']], alphas=[1.0, 1.0, 1.0, 3.5, 1.0], energy_interaction=[[0.000e+00, 2.470e+04, 2.600e+04, 2.430e+04],[2.470e+04, 0.000e+00, 0.000e+00],[6.060e+04, 0.000e+00],[1.000e+04]]))
-model.set_composition([0.2, 0.2, 0.2, 0.2, 0.2])
-model.set_state(pressure, temperature)
-mineral_a.set_state(pressure, temperature)
-mineral_b.set_state(pressure, temperature)
-mineral_c.set_state(pressure, temperature)
-mineral_d.set_state(pressure, temperature)
-mineral_e.set_state(pressure, temperature)
+# mineral_a = minerals.SLB_2011.diopside()
+# mineral_b = minerals.SLB_2011.hedenbergite()
+# mineral_c = minerals.SLB_2011.clinoenstatite()
+# mineral_d = minerals.SLB_2011.ca_tschermaks()
+# mineral_e = minerals.SLB_2011.jadeite()
+# model = Solution(name= 'Clinopyroxene', solution_model = AsymmetricRegularSolution(endmembers= [[mineral_a, '(Ca)(Mg)(Si2)O6'], [mineral_b, '(Ca)(Fe)(Si2)O6'], [mineral_c, '(Mg)(Mg)(Si2)O6'], [mineral_d, '(Ca)(Al)(Si Al)O6'], [mineral_e, '(Na)(Al)(Si2)O6']], alphas=[1.0, 1.0, 1.0, 3.5, 1.0], energy_interaction=[[0.000e+00, 2.470e+04, 2.600e+04, 2.430e+04],[2.470e+04, 0.000e+00, 0.000e+00],[6.060e+04, 0.000e+00],[1.000e+04]]))
+# model.set_composition([0.2, 0.2, 0.2, 0.2, 0.2])
+# model.set_state(pressure, temperature)
+# mineral_a.set_state(pressure, temperature)
+# mineral_b.set_state(pressure, temperature)
+# mineral_c.set_state(pressure, temperature)
+# mineral_d.set_state(pressure, temperature)
+# mineral_e.set_state(pressure, temperature)
 
 # mineral_a = minerals.SLB_2011.hp_clinoenstatite()
 # mineral_b = minerals.SLB_2011.hp_clinoferrosilite()
@@ -229,4 +229,30 @@ mineral_e.set_state(pressure, temperature)
 # mineral_d.set_state(pressure, temperature)
 # mineral_e.set_state(pressure, temperature)
 
-print("Gibbs:", model.gibbs)
+
+# S_conf = model.solution_model._configurational_entropy(model.molar_fractions)
+
+
+print(f'Gibbs: {model.gibbs:,.4f} [J/mol]')
+# print(temperature*S_conf)
+
+# formula = "Fe3Al2Si3O12"
+#         formula = dictionarize_formula(formula)
+#         self.params = {
+#             "name": "Almandine",
+#             "formula": formula,
+#             "equation_of_state": "slb3",
+#             "F_0": -4935516.0,
+#             "V_0": 0.00011543,
+#             "K_0": 1.738963e11,
+#             "Kprime_0": 4.91341,
+#             "Debye_0": 741.356,
+#             "grueneisen_0": 1.06495,
+#             "q_0": 1.42169,
+#             "G_0": 96000000000.0,
+#             "Gprime_0": 1.40927,
+#             "eta_s_0": 2.09292,
+#             "n": sum(formula.values()),
+#             "molar_mass": formula_mass(formula),
+
+
