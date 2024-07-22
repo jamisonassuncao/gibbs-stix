@@ -2,12 +2,8 @@ using DataFrames, JSON3, Printf
 include("types.jl")
 
 global R = 8.31446261815324
-<<<<<<< HEAD
 # global COMP = ["SIO2", "CAO", "AL2O3", "FEO", "MGO", "NA2O"]
 global COMP = ["Si", "Ca", "Al", "Fe", "Mg", "Na"]
-=======
-global COMP = ["SIO2", "CAO", "AL2O3", "FEO", "MGO", "NA2O"]
->>>>>>> 810b2137dfaab5d6d63e10c27f821e69d2f5324b
 
 function read_data(fname::String)
     return JSON3.read(fname, Vector{Phase}) |> DataFrame
@@ -17,11 +13,7 @@ function restructure(s::DataFrame, m::Float64, v::Vector{Vector{Float64}})
     return (id = s.id[1], fml = s.fml[1], F0 = s.F0[1], n = s.n[1], V0 = s.V0[1], K0 = s.K0[1], Kp = s.Kp[1], Θ0 = s.Θ0[1], γ0 = s.γ0[1], q0 = s.q0[1], ηS0 = s.ηS0[1], cme = s.cme[1], molar_fraction = m, sites_cmp = v)
 end
 
-<<<<<<< HEAD
 function read_models(fname::String, data::DataFrame, model_names::Vector{String}, endmember_fractions::Vector{Dict{String, Float64}})
-=======
-function read_models(fname::String, data::DataFrame, model_names::Vector{String})
->>>>>>> 810b2137dfaab5d6d63e10c27f821e69d2f5324b
     read_models = JSON3.read(fname, Vector{ModelJSON})                          # read the json
     models = Vector{Model}()                                                    # create a vector of Models
     
@@ -51,7 +43,6 @@ function read_models(fname::String, data::DataFrame, model_names::Vector{String}
     return models
 end
 
-<<<<<<< HEAD
 function set_multiplicity(data::DataFrame)
 
     n_endmembers = size(data)[1]                                                # get the number of endmembers
@@ -75,8 +66,6 @@ function set_multiplicity(data::DataFrame)
     return data, n_sites, multiplicity
 end
 
-=======
->>>>>>> 810b2137dfaab5d6d63e10c27f821e69d2f5324b
 function message(str::String, arg::Vector{Float64}=[0.0])
     max_dist = 80
     dist = 3
@@ -107,7 +96,6 @@ function message(str::String, arg::Vector{Float64}=[0.0])
     end
 end
 
-<<<<<<< HEAD
 # function make_comp(comp::Dict{String, Float64})
 #     sc = size(COMP)
 #     my_comp = zeros(sc)
@@ -117,17 +105,6 @@ end
 #     end
 #     return my_comp
 # end
-=======
-function make_comp(comp::Dict{String, Float64})
-    sc = size(COMP)
-    my_comp = zeros(sc)
-    for key in keys(comp)
-        p = findfirst(x -> x == key, COMP)
-        my_comp[p] = comp[key]
-    end
-    return my_comp
-end
->>>>>>> 810b2137dfaab5d6d63e10c27f821e69d2f5324b
 
 """
     plg(t)
@@ -305,10 +282,7 @@ function calc_gibbs(phase::DataFrameRow{DataFrame, DataFrames.Index}, p::Float64
         end
 
         v -= dv
-<<<<<<< HEAD
         
-=======
->>>>>>> 810b2137dfaab5d6d63e10c27f821e69d2f5324b
 
         if (itic > iopt21 || abs(f1) > 1e40)
             # allow bad result
@@ -357,7 +331,6 @@ function calc_gibbs(phase::DataFrameRow{DataFrame, DataFrames.Index}, p::Float64
     return G
 end
 
-<<<<<<< HEAD
 function no_nan_sum(vec::Vector{Float64})
     return sum([x for x in vec if !isnan(x)])
 end
@@ -448,11 +421,7 @@ function calc_excess(i::Int64, model::Model)
     return excess
 end
 
-<<<<<<< HEAD
 function gcalc(pressure::Float64, temperature::Float64, models::Vector{Model}, endmember_fractions::Vector{Dict{String, Float64}})
-=======
-function gcalc(pressure::Float64, temperature::Float64, models::Vector{Model}, endmembers_fractions::Vector{Vector{Float64}})
->>>>>>> 810b2137dfaab5d6d63e10c27f821e69d2f5324b
     
     μ = Vector{Float64}()
     
@@ -461,7 +430,6 @@ function gcalc(pressure::Float64, temperature::Float64, models::Vector{Model}, e
         ai = Vector{Float64}()    
         xi = Vector{Float64}()
         μi = Vector{Float64}()
-<<<<<<< HEAD
         # n_endmembers = size(model.endmembers)[1]
         # for i in 1:n_endmembers
         #     phase = model.endmembers[i, :]
@@ -515,13 +483,8 @@ function span_gcalc(n_span::Int64, pressure::Float64, temperature::Float64, mode
 
     for a in 0:n_span
         v = a / n_span
-<<<<<<< HEAD
         endmember_fractions = [[v, 1-v]]
         push!(g, sum(gcalc(pressure, temperature, models, endmember_fractions)))
-=======
-        endmembers_fractions = [[v, 1-v]]
-        push!(g, sum(gcalc(pressure, temperature, models, endmembers_fractions)))
->>>>>>> 810b2137dfaab5d6d63e10c27f821e69d2f5324b
     end
 
     fig = Figure()
@@ -538,7 +501,6 @@ function span_gcalc(n_span::Int64, pressure::Float64, temperature::Float64, mode
     display(fig)
     
     return g
-<<<<<<< HEAD
 end
 
 # function jprint(number::Float64, sep::Char=',', dig::Int=2)
@@ -547,6 +509,3 @@ end
 #     str_number = format(number, commas=true, precision=dig, separator=sep)
 #     return str_number
 # end
-=======
-end
->>>>>>> 810b2137dfaab5d6d63e10c27f821e69d2f5324b
