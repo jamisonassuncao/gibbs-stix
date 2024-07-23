@@ -354,21 +354,16 @@ function calc_config(phase::DataFrameRow{DataFrame, DataFrames.Index}, index::In
             for endmember in 1:n_endmembers
                 
                 if model.endmembers.sites_cmp[endmember][site][specie] != 0
-                    # println(model.endmembers.id[endmember])
-                    # println("endmember_fractions: ", model.endmembers.molar_fraction[endmember])
                     molar_fraction[end] += model.endmembers.molar_fraction[endmember]
                 end                
             end
             
-            # println("model.site_multiplicities[site]: ", model.site_multiplicities[site])
             aux_config = model.site_multiplicities[site] .* molar_fraction .* log.(molar_fraction ./ total_molar_fraction)
-            # println("aux_config: ", aux_config)
             
         end
-        # println("molar_fraction: ", molar_fraction)
-        # println(aux_config)
+        
         push!(config, no_nan_sum(aux_config))
-        # println(repeat("-", 80))
+        
     end
     
     # println(sum(config))
@@ -430,25 +425,6 @@ function gcalc(pressure::Float64, temperature::Float64, models::Vector{Model}, e
         ai = Vector{Float64}()    
         xi = Vector{Float64}()
         μi = Vector{Float64}()
-        # n_endmembers = size(model.endmembers)[1]
-        # for i in 1:n_endmembers
-        #     phase = model.endmembers[i, :]
-        #     println(phase)
-        #     title = " " * string(endmember_fractions[m][i] * 100.0) * " % of `" * phase.id * "` (" * phase.fml * ") "
-        #     # message(title);
-        #     g = calc_gibbs(phase, pressure, temperature)
-        #     # message("gibbs", [g])
-        #     push!(gi, g)
-        #     println("ef: ", endmember_fractions[m])
-        #     a = R * temperature * calc_config(phase, i, model, endmember_fractions[m]) 
-        #     # message("config", [a])
-        #     push!(ai, a)
-        #     e = calc_excess(i, model, endmember_fractions[m])
-        #     # message("excess", [e])
-        #     push!(xi, e)
-        #     # message("μi", [g - a - e]) # message("μi", [g - (a/3.0) - e])
-        #     push!(μi, (g - a - e)) # push!(μi, (g - (a/3.0) - e))
-        # end
         for (i, (key, value)) in enumerate(endmember_fractions[m])
             phase = model.endmembers[i, :]
             title = " " * string(endmember_fractions[m][key] * 100.0) * " % of `" * phase.id * "` (" * phase.fml * ") "
@@ -456,15 +432,13 @@ function gcalc(pressure::Float64, temperature::Float64, models::Vector{Model}, e
             g = calc_gibbs(phase, pressure, temperature)
             message("gibbs", [g])
             push!(gi, g)
-            # println("ef: ", endmember_fractions[m])
             a = R * temperature * calc_config(phase, i, model) 
             message("config", [a])
             push!(ai, a)
             e = calc_excess(i, model)
             message("excess", [e])
             push!(xi, e)
-            # message("μi", [g - a - e]) # message("μi", [g - (a/3.0) - e])
-            push!(μi, (g - a - e)) # push!(μi, (g - (a/3.0) - e))
+            push!(μi, (g - a - e))
         end
         
         push!(μ, sum(μi .* model.endmembers.molar_fraction[m]))
@@ -474,33 +448,6 @@ function gcalc(pressure::Float64, temperature::Float64, models::Vector{Model}, e
     end
 
     return μ
-end
-
-function span_gcalc(n_span::Int64, pressure::Float64, temperature::Float64, models::Vector{Model})
-    
-    g = Vector{Float64}()
-    x = [x for x in 0:n_span] ./ n_span
-
-    for a in 0:n_span
-        v = a / n_span
-        endmember_fractions = [[v, 1-v]]
-        push!(g, sum(gcalc(pressure, temperature, models, endmember_fractions)))
-    end
-
-    fig = Figure()
-    Axis(
-        fig[1, 1], 
-        title="Gibss free energy", 
-        xticks = 0.0:0.1:1.0, 
-        xlabel = "nᵢ", 
-        ylabel = "𝒢 (kJ)",
-        ytickformat = "{:.2f}"
-        )
-    xlims!(0, 1)
-    lines!(x, g / 1.0e3)
-    display(fig)
-    
-    return g
 end
 
 # function jprint(number::Float64, sep::Char=',', dig::Int=2)
