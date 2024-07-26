@@ -87,6 +87,8 @@ function main()
     # read datasets
     data = read_data("data/stx11_data.json")
     models = read_models("data/stx11_solution.json", data, model_names, endmember_fractions)
+    print_endmembers(models)
+    # print_endmember("")
     # calculate gibbs free energy
     gibbs = gcalc(pressure, temperature, models, endmember_fractions)
 

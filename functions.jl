@@ -456,3 +456,33 @@ end
 #     str_number = format(number, commas=true, precision=dig, separator=sep)
 #     return str_number
 # end
+
+function print_endmembers(models::Vector{Model})
+    tab = "    "
+    quotes = '"'
+    sep = " "
+
+    for model in models
+        n_sites = model.sites
+        multiplicity = join(model.site_multiplicities, sep)
+        
+        for endmember in eachrow(model.endmembers)
+
+            
+               
+            
+
+
+            println("{")
+            println(tab, quotes, endmember.id, quotes)
+            print(tab, n_sites, sep, multiplicity)
+            for i in 1:n_sites
+                n_atoms = count(x -> x != 0, endmember.sites_cmp[i])
+                print(sep, n_atoms, sep, "***")
+            end
+            
+            println(tab, join([endmember.F0, endmember.n, endmember.V0, endmember.K0, endmember.Kp, endmember.Θ0, endmember.γ0, endmember.q0, endmember.ηS0, endmember.cme], sep))
+            println("}")
+        end
+    end
+end
