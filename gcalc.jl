@@ -59,8 +59,8 @@ function main()
     model_names = ["stishovite"] # diff. < 54
     endmember_fractions = [Dict("stishovite" =>  1.0)]
 
-    # model_names = ["perovskite"] 
-    # endmember_fractions = [Dict("mg-perovskite" => 0.3, "fe-perovskite"=> 0.3, "al-perovskite" => 0.4)]
+    model_names = ["perovskite"] 
+    endmember_fractions = [Dict("mg-perovskite" => 0.3, "fe-perovskite"=> 0.3, "al-perovskite" => 0.4)]
 
     # model_names = ["post-perovskite"]
     # endmember_fractions = [Dict("mg-post-perovskite" => 0.3, "fe-post-perovskite" => 0.3, "al-post-perovskite" => 0.4)]

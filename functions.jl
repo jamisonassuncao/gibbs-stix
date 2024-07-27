@@ -463,7 +463,7 @@ print_endmembers(models::Vector{Model})
 This function prints the endmembers of the models in the followin format:
 {
     "endmember_id"
-    n_sites multiplicity_site_1 n_atoms_site_1 first_non_zero_index_site_1 first_value_site_1 ... multiplicity_site_n n_atoms_site_n first_non_zero_index_site_n first_value_site_n
+    n_sites multiplicity_site_1 n_SIO2_site_1 n_CAO_site_1 n_AL2O3_site_1 n_FEO_site_1 n_MGO_site_1 n_NA2O_site_1 ... multiplicity_site_n n_SIO2_site_n n_CAO_site_n n_AL2O3_site_n n_FEO_site_n n_MGO_site_n n_NA2O_site_n
     n_SIO2 n_CAO n_AL2O3 n_FEO n_MGO n_NA2O
     F0 n V0 K0 Kp Θ0 γ0 q0 ηS0 cme
 }
@@ -479,7 +479,8 @@ function print_endmembers(models::Vector{Model})
     quotes = '"'
     sep = " "
     new_line = "\n"
-
+    max_n_sites = 4
+    aux_zero = zeros(length(COMP))
     
     for model in models
         n_sites = model.sites
@@ -494,16 +495,23 @@ function print_endmembers(models::Vector{Model})
 
             # print sites composition
             print(tab, n_sites, sep)
-            for i in 1:n_sites
-                n_atoms = count(x -> x != 0 && !isnan(x), endmember.sites_cmp[i])
-                if n_atoms == 0
-                    continue
+            for i in 1:max_n_sites
+                # n_atoms = count(x -> x != 0 && !isnan(x), endmember.sites_cmp[i])
+                # if n_atoms == 0
+                #     continue
+                # end
+                # non_zero_indices = findall(x -> x != 0, endmember.sites_cmp[i])
+                # print(multiplicity[i], sep, n_atoms, sep)
+                # for index in non_zero_indices
+                #     print(index, sep, endmember.sites_cmp[i][index], sep)
+                # end
+                if i <= n_sites
+                    print(multiplicity[i], sep, join(endmember.sites_cmp[i], sep), sep)
+                else
+                    print("0", sep, join(aux_zero, sep), sep)
                 end
-                non_zero_indices = findall(x -> x != 0, endmember.sites_cmp[i])
-                print(multiplicity[i], sep, n_atoms, sep)
-                for index in non_zero_indices
-                    print(index, sep, endmember.sites_cmp[i][index], sep)
-                end
+
+                
             end
 
             # print oxide composition
