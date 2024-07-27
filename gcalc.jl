@@ -59,26 +59,26 @@ function main()
     model_names = ["stishovite"] # diff. < 54
     endmember_fractions = [Dict("stishovite" =>  1.0)]
 
-    model_names = ["perovskite"] 
-    endmember_fractions = [Dict("mg-perovskite" => 0.3, "fe-perovskite"=> 0.3, "al-perovskite" => 0.4)]
+    # model_names = ["perovskite"] 
+    # endmember_fractions = [Dict("mg-perovskite" => 0.3, "fe-perovskite"=> 0.3, "al-perovskite" => 0.4)]
 
-    model_names = ["post-perovskite"]
-    endmember_fractions = [Dict("mg-post-perovskite" => 0.3, "fe-post-perovskite" => 0.3, "al-post-perovskite" => 0.4)]
+    # model_names = ["post-perovskite"]
+    # endmember_fractions = [Dict("mg-post-perovskite" => 0.3, "fe-post-perovskite" => 0.3, "al-post-perovskite" => 0.4)]
 
-    model_names = ["magnesio-wustite"]
-    endmember_fractions = [Dict("periclase" => 0.5, "wustite" => 0.5)]
+    # model_names = ["magnesio-wustite"]
+    # endmember_fractions = [Dict("periclase" => 0.5, "wustite" => 0.5)]
 
-    model_names = ["ca-ferrite"]
-    endmember_fractions = [Dict("mg-ca-ferrite" => 0.3, "fe-ca-ferrite" => 0.3, "na-ca-ferrite" => 0.4)]
+    # model_names = ["ca-ferrite"]
+    # endmember_fractions = [Dict("mg-ca-ferrite" => 0.3, "fe-ca-ferrite" => 0.3, "na-ca-ferrite" => 0.4)]
 
-    model_names = ["clinopyroxene"] # energy_interaction @ burnman + van laar + zeroed 3rd site + asymmetric
-    endmember_fractions = [Dict("diopside" => 0.2, "hedenbergite" => 0.2, "clinoenstatite" => 0.2, "ca-tschermak" => 0.2, "jadeite" => 0.2)]
+    # model_names = ["clinopyroxene"] # energy_interaction @ burnman + van laar + zeroed 3rd site + asymmetric
+    # endmember_fractions = [Dict("diopside" => 0.2, "hedenbergite" => 0.2, "clinoenstatite" => 0.2, "ca-tschermak" => 0.2, "jadeite" => 0.2)]
 
-    model_names = ["akimotoite"]
-    endmember_fractions = [Dict("mg-akimotoite" => 0.3, "fe-akimotoite" => 0.3, "corundum" => 0.4)]
+    # model_names = ["akimotoite"]
+    # endmember_fractions = [Dict("mg-akimotoite" => 0.3, "fe-akimotoite" => 0.3, "corundum" => 0.4)]
 
-    model_names = ["garnet"] # asymmetric
-    endmember_fractions = [Dict("pyrope" => 0.2, "almandine" => 0.2, "grossular" => 0.2, "mg-majorite" => 0.2, "jd-majorite" => 0.2)] 
+    # model_names = ["garnet"] # asymmetric
+    # endmember_fractions = [Dict("pyrope" => 0.2, "almandine" => 0.2, "grossular" => 0.2, "mg-majorite" => 0.2, "jd-majorite" => 0.2)] 
 
    ############################################################################
     # run
@@ -86,6 +86,7 @@ function main()
 
     # read datasets
     data = read_data("data/stx11_data.json")
+    # println(data)
     models = read_models("data/stx11_solution.json", data, model_names, endmember_fractions)
     print_endmembers(models)
     # print_endmember("")

@@ -1,6 +1,7 @@
 struct Phase
     id::String                  # Name id
     fml::String                 # Chemical formula
+    oxides::Dict{String, Float64}  # Oxides
     F0::Float64                 # Helmoltz energy (F0, J/mol)
     n::Float64                  # negative of the number of atoms per formula unit (-n)
     V0::Float64                 # negative of the volume (-V0)
