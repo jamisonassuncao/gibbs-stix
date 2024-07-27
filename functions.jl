@@ -457,31 +457,78 @@ end
 #     return str_number
 # end
 
+"""
+print_endmembers(models::Vector{Model})
+
+This function prints the endmembers of the models in the followin format:
+{
+    "endmember_id"
+    n_sites multiplicity_site_1 n_atoms_site_1 first_non_zero_index_site_1 first_value_site_1 ... multiplicity_site_n n_atoms_site_n first_non_zero_index_site_n first_value_site_n
+    index_composition_1 value_composition_1 ... index_composition_n value_composition_n
+    F0 n V0 K0 Kp Θ0 γ0 q0 ηS0 cme
+}
+
+# Arguments
+- `models::Vector{Model}`: Vector of Model objects.
+
+# Returns
+- `nothing`
+"""
 function print_endmembers(models::Vector{Model})
     tab = "    "
     quotes = '"'
     sep = " "
+    new_line = "\n"
 
+    
     for model in models
         n_sites = model.sites
-        multiplicity = join(model.site_multiplicities, sep)
+        multiplicity = model.site_multiplicities
         
         for endmember in eachrow(model.endmembers)
-
-            
-               
-            
-
-
+            composition = zeros(size(COMP)[1])
             println("{")
             println(tab, quotes, endmember.id, quotes)
-            print(tab, n_sites, sep, multiplicity)
+            print(tab, n_sites, sep)
             for i in 1:n_sites
                 n_atoms = count(x -> x != 0, endmember.sites_cmp[i])
-                print(sep, n_atoms, sep, "***")
+                non_zero_indices = findall(x -> x != 0, endmember.sites_cmp[i])
+                print(multiplicity[i], sep, n_atoms, sep)
+                for index in non_zero_indices
+                    print(index, sep, endmember.sites_cmp[i][index], sep)
+                end
+            end
+            # println(new_line, tab, endmember.fml)
+
+            for i in 1:n_sites
+                composition .+= multiplicity[i] .* endmember.sites_cmp[i]
+                # println(multiplicity[i].*endmember.sites_cmp[i])
+                
+            end
+            non_zero_indices = findall(x -> x != 0, composition)
+            print(new_line, tab)
+            for index in non_zero_indices
+                print(index, sep, composition[index], sep)
             end
             
-            println(tab, join([endmember.F0, endmember.n, endmember.V0, endmember.K0, endmember.Kp, endmember.Θ0, endmember.γ0, endmember.q0, endmember.ηS0, endmember.cme], sep))
+            # Extract substrings between square brackets and update composition
+            # for match in eachmatch(r"\[(.*?)\]", endmember.fml)
+            #     substr = match.captures[1]  # Correctly extract the matched substring
+            #     println(substr)
+            #     parts = split(substr, "_")
+            #     println(parts[1], parts[2])
+
+            #     # for part in parts
+            #         # println("part:", part)
+            #     idx = findfirst(isequal(parts[1]), COMP)
+            #     println(idx)
+            #     if idx !== nothing
+            #         composition[idx] += parse(Int, parts[2])
+            #     end
+                
+            # end
+            # println(tab, composition)
+            println(new_line, tab, join([endmember.F0, endmember.n, endmember.V0, endmember.K0, endmember.Kp, endmember.Θ0, endmember.γ0, endmember.q0, endmember.ηS0, endmember.cme], sep))
             println("}")
         end
     end
