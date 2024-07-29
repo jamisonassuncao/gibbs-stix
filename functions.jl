@@ -10,7 +10,7 @@ function read_data(fname::String)
 end
 
 function restructure(s::DataFrame, m::Float64, v::Vector{Vector{Float64}})
-    return (id = s.id[1], fml = s.fml[1], oxides = s.oxides, F0 = s.F0[1], n = s.n[1], V0 = s.V0[1], K0 = s.K0[1], Kp = s.Kp[1], Θ0 = s.Θ0[1], γ0 = s.γ0[1], q0 = s.q0[1], ηS0 = s.ηS0[1], cme = s.cme[1], molar_fraction = m, sites_cmp = v)
+    return (id = s.id[1], abbrev = s.abbrev[1], fml = s.fml[1], oxides = s.oxides, F0 = s.F0[1], n = s.n[1], V0 = s.V0[1], K0 = s.K0[1], Kp = s.Kp[1], Θ0 = s.Θ0[1], γ0 = s.γ0[1], q0 = s.q0[1], ηS0 = s.ηS0[1], cme = s.cme[1], molar_fraction = m, sites_cmp = v)
 end
 
 function read_models(fname::String, data::DataFrame, model_names::Vector{String}, endmember_fractions::Vector{Dict{String, Float64}})
@@ -335,6 +335,24 @@ function no_nan_sum(vec::Vector{Float64})
     return sum([x for x in vec if !isnan(x)])
 end
 
+
+function logish(x, meps = 1.0e-7)
+    """
+    2nd order series expansion of log(x) about eps:
+    log(eps) - sum_k=1^infty (f_eps)^k / k
+    Prevents infinities at x=0
+    """
+    f_eps = 1.0 - x / meps
+    if x < meps
+        ln = log(meps) - f_eps - f_eps * f_eps / 2.0
+    else
+        ln = log(x)
+    end
+
+    return ln
+end
+
+
 function calc_config(phase::DataFrameRow{DataFrame, DataFrames.Index}, index::Int64, model::Model)
     # initialization
 
@@ -360,15 +378,12 @@ function calc_config(phase::DataFrameRow{DataFrame, DataFrames.Index}, index::In
                     molar_fraction[specie] += model.endmembers.molar_fraction[endmember]
                 end                
             end
-            # print("$specie $molar_fraction\n")
 
+            aux_config = model.site_multiplicities[site] .* molar_fraction .* logish.(molar_fraction ./ total_molar_fraction)
 
-            aux_config = model.site_multiplicities[site] .* molar_fraction .* log.(molar_fraction ./ total_molar_fraction)
-            # print("$aux_config\n")
-            
         end
         
-        config[site] = no_nan_sum(aux_config)
+        config[site] = sum(aux_config)
         
     end
     
