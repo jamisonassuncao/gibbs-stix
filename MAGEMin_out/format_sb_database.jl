@@ -21,7 +21,7 @@ for i=1:size(data)[1]
     out *= tab*tab*"\"$(data[i,:abbrev])\", \"$(data[i,:id])\", \"$(data[i,:fml])\",\n"
 
     # retrieve the composition
-    composition = join(collect(values(data[i, :oxides])), " ")
+    composition = join(collect(values(data[i, :oxides])), ", ")
     out *= tab*tab*"{$composition},\n"
 
     # retrieve site occupancies
@@ -58,12 +58,12 @@ for i=1:size(data)[1]
     l_tmp   = cat(n_sites, mul, site_cmp, dims=1)
 
     line3[1:length(l_tmp)]  .= l_tmp
-    line3   = join(collect(line3), " ")
+    line3   = join(collect(line3), ", ")
 
     out    *= tab*tab*"{$line3},\n"
 
     # retrieve standard state properties
-    line4   = join(collect(Vector(data[i, 5:14])), " ")
+    line4   = join(collect(Vector(data[i, 5:14])), ", ")
     out *= tab*tab*"{$line4},\n"
 
     out *= tab*"},\n"
