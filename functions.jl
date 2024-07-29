@@ -337,32 +337,38 @@ end
 
 function calc_config(phase::DataFrameRow{DataFrame, DataFrames.Index}, index::Int64, model::Model)
     # initialization
-    config::Vector{Float64} = []
+
     n_endmembers            = size(model.endmembers)[1]
     total_molar_fraction    = sum(model.endmembers.molar_fraction)
     n_sites                 = model.sites
     n_species               = size(model.endmembers.sites_cmp[1][1])[1]
 
+    molar_fraction  = Vector{Float64}(undef, n_species)
+    aux_config      = Vector{Float64}(undef, n_species)
+    config          = Vector{Float64}(undef,n_sites)
+
     for site in 1:n_sites
-        
-        molar_fraction::Vector{Float64} = []
+        molar_fraction .= 0.0;
+
         aux_config::Vector{Float64}     = []
 
         for specie in 1:n_species
-            push!(molar_fraction, 0.0)
-            
+
             for endmember in 1:n_endmembers
                 
                 if model.endmembers.sites_cmp[endmember][site][specie] != 0
-                    molar_fraction[end] += model.endmembers.molar_fraction[endmember]
+                    molar_fraction[specie] += model.endmembers.molar_fraction[endmember]
                 end                
             end
-            
+            # print("$specie $molar_fraction\n")
+
+
             aux_config = model.site_multiplicities[site] .* molar_fraction .* log.(molar_fraction ./ total_molar_fraction)
+            # print("$aux_config\n")
             
         end
         
-        push!(config, no_nan_sum(aux_config))
+        config[site] = no_nan_sum(aux_config)
         
     end
     
@@ -526,3 +532,5 @@ function print_endmembers(models::Vector{Model})
         end
     end
 end
+
+
