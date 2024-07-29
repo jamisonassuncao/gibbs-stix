@@ -59,6 +59,9 @@ function set_multiplicity(data::DataFrame)
     for j in 1:n_sites
         for i in 1:n_endmembers
             multiplicity[j] = maximum(aux_max[:, j])
+            if multiplicity[j] == 0 # set minimum multiplicity to be 1 to avoid division by zero
+                multiplicity[j] = 1
+            end
             data.sites_cmp[i][j] ./= multiplicity[j]
         end
     end
@@ -502,6 +505,7 @@ function print_endmembers(models::Vector{Model})
     new_line = "\n"
     max_n_sites = 4
     aux_zero = zeros(length(COMP))
+    aux = "***"
     
     for model in models
         n_sites = model.sites

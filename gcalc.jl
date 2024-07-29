@@ -13,54 +13,54 @@ function main()
     # benchmarked
     ############################################################################
 
-    model_names = ["spinel"]
-    endmember_fractions = [Dict("spinel" => 0.5, "hercynite" => 0.5)] 
+    # model_names = ["spinel"]
+    # endmember_fractions = [Dict("spinel" => 0.5, "hercynite" => 0.5)] 
 
-    model_names = ["olivine"]
-    endmember_fractions = [Dict("fayalite" => 0.3, "forsterite" => 0.7)]
+    # model_names = ["olivine"]
+    # endmember_fractions = [Dict("fayalite" => 0.3, "forsterite" => 0.7)]
 
-    model_names = ["wadsleyite"]
-    endmember_fractions = [Dict("mg-wadsleyite" => 0.5, "fe-wadsleyite" => 0.5)] 
+    # model_names = ["wadsleyite"]
+    # endmember_fractions = [Dict("mg-wadsleyite" => 0.5, "fe-wadsleyite" => 0.5)] 
 
-    model_names = ["ringwoodite"]
-    endmember_fractions = [Dict("mg-ringwoodite" => 0.5, "fe-ringwoodite" => 0.5)]
+    # model_names = ["ringwoodite"]
+    # endmember_fractions = [Dict("mg-ringwoodite" => 0.5, "fe-ringwoodite" => 0.5)]
 
-    model_names = ["hp-clinopyroxene"] # energy_interaction @ burnman = 0
-    endmember_fractions = [Dict("hp-clinoenstatite" => 0.5, "hp-clinoferrosilite" => 0.5)] 
+    # model_names = ["hp-clinopyroxene"] # energy_interaction @ burnman = 0
+    # endmember_fractions = [Dict("hp-clinoenstatite" => 0.5, "hp-clinoferrosilite" => 0.5)] 
 
-    model_names = ["ca-perovskite"]
-    endmember_fractions = [Dict("ca-perovskite" => 1.0)] 
+    # model_names = ["ca-perovskite"]
+    # endmember_fractions = [Dict("ca-perovskite" => 1.0)] 
 
-    model_names = ["coesite"]
-    endmember_fractions = [Dict("coesite" => 1.0)]
+    # model_names = ["coesite"]
+    # endmember_fractions = [Dict("coesite" => 1.0)]
 
-    model_names = ["seifertite"]
-    endmember_fractions = [Dict("seifertite" => 1.0)]
+    # model_names = ["seifertite"]
+    # endmember_fractions = [Dict("seifertite" => 1.0)]
 
-    model_names = ["kyanite"]
-    endmember_fractions = [Dict("kyanite" => 1.0)] 
+    # model_names = ["kyanite"]
+    # endmember_fractions = [Dict("kyanite" => 1.0)] 
 
-    model_names = ["nepheline"]
-    endmember_fractions = [Dict("nepheline" =>  1.0)]
+    # model_names = ["nepheline"]
+    # endmember_fractions = [Dict("nepheline" =>  1.0)]
 
-    model_names = ["orthopyroxene"]
-    endmember_fractions = [Dict("enstatite" => 0.25, "ferrosilite" => 0.25, "mg-tschermak" => 0.25, "ortho-diopside" => 0.25)]
+    # model_names = ["orthopyroxene"]
+    # endmember_fractions = [Dict("enstatite" => 0.25, "ferrosilite" => 0.25, "mg-tschermak" => 0.25, "ortho-diopside" => 0.25)]
 
     ############################################################################
     # failed benchmark
     ############################################################################
 
-    model_names = ["plagioclase"] 
-    endmember_fractions = [Dict("anorthite" => 0.5, "albite" => 0.5)]
+    # model_names = ["plagioclase"] 
+    # endmember_fractions = [Dict("anorthite" => 0.5, "albite" => 0.5)]
 
-    model_names = ["quartz"]
-    endmember_fractions = [Dict("quartz" => 1.0)]
+    # model_names = ["quartz"]
+    # endmember_fractions = [Dict("quartz" => 1.0)]
 
-    model_names = ["stishovite"] # diff. < 54
-    endmember_fractions = [Dict("stishovite" =>  1.0)]
+    # model_names = ["stishovite"] # diff. < 54
+    # endmember_fractions = [Dict("stishovite" =>  1.0)]
 
-    model_names = ["perovskite"] 
-    endmember_fractions = [Dict("mg-perovskite" => 0.3, "fe-perovskite"=> 0.3, "al-perovskite" => 0.4)]
+    # model_names = ["perovskite"] 
+    # endmember_fractions = [Dict("mg-perovskite" => 0.3, "fe-perovskite"=> 0.3, "al-perovskite" => 0.4)]
 
     # model_names = ["post-perovskite"]
     # endmember_fractions = [Dict("mg-post-perovskite" => 0.3, "fe-post-perovskite" => 0.3, "al-post-perovskite" => 0.4)]
@@ -71,8 +71,8 @@ function main()
     # model_names = ["ca-ferrite"]
     # endmember_fractions = [Dict("mg-ca-ferrite" => 0.3, "fe-ca-ferrite" => 0.3, "na-ca-ferrite" => 0.4)]
 
-    # model_names = ["clinopyroxene"] # energy_interaction @ burnman + van laar + zeroed 3rd site + asymmetric
-    # endmember_fractions = [Dict("diopside" => 0.2, "hedenbergite" => 0.2, "clinoenstatite" => 0.2, "ca-tschermak" => 0.2, "jadeite" => 0.2)]
+    model_names = ["clinopyroxene"] # energy_interaction @ burnman + van laar + zeroed 3rd site + asymmetric
+    endmember_fractions = [Dict("diopside" => 0.2, "hedenbergite" => 0.2, "clinoenstatite" => 0.2, "ca-tschermak" => 0.2, "jadeite" => 0.2)]
 
     # model_names = ["akimotoite"]
     # endmember_fractions = [Dict("mg-akimotoite" => 0.3, "fe-akimotoite" => 0.3, "corundum" => 0.4)]
